@@ -116,7 +116,7 @@ function LevelText:Update (unitFrame)
 		level = string.format(levelText.formatText, level);
 	end
 	
-	levelText:SetFontObject("GameFontNormal");
+	--levelText:SetFontObject("GameFontNormal");
 	levelText:SetText(level);	
 	
 	levelText:Show();
@@ -124,7 +124,7 @@ end
 
 function LevelText:Reset(unitFrame)
 	local levelText = unitFrame[self.name];
-	levelText:SetFontObject("GameFontNormal");
+	--levelText:SetFontObject("GameFontNormal");
 	levelText:SetText("");
 	levelText:Hide();
 	if ( levelText.highLevelTexture ) then

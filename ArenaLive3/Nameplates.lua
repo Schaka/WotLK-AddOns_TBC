@@ -55,7 +55,7 @@ local function setupNameplate(frame)
             local cooldown = CreateFrame("Cooldown", nil, indicator)
             cooldown:SetAllPoints(indicator)
 
-            local text = indicator:CreateFontString(nil, "OVERLAY")
+            local text = indicator:CreateFontString(nil, "OVERLAY", "ArenaLiveFont_CooldownText")
             text:SetAllPoints(cooldown)
             cooldown.text = text
 

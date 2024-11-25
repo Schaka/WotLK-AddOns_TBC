@@ -147,7 +147,7 @@ end
 function NameText:SetTextObject(unitFrame)
 	local database = ArenaLive:GetDBComponent(unitFrame.addon, self.name, unitFrame.group);
 	local nameText = unitFrame[self.name];
-	nameText:SetFontObject("GameFontNormal");
+	nameText:SetFontObject(database.FontObject);
 end
 
 function NameText:AddNickname(keyName, nickname)

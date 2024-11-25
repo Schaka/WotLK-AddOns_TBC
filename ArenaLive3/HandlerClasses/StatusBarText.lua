@@ -40,8 +40,7 @@ function StatusBarText:SetTextObject(unitFrame)
 	local database = ArenaLive:GetDBComponent(unitFrame.addon, self.name, unitFrame.group);
 	local text = unitFrame[self.name];
 	
-	--database.FontObject
-	text:SetFontObject("GameFontNormal");
+	text:SetFontObject(database.FontObject);
 end
 
 function StatusBarText:Update(unitFrame)
