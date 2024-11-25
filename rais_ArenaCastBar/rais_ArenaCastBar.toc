@@ -1,0 +1,7 @@
+## Interface: 30300
+## Title: rais_ArenaCastBar
+## Author: raisnilt
+## Notes: Show enemy CastBars under nameplates in Arena.
+## SavedVariables: rais_ArenaCastBar_SavedVariables
+
+rais_ArenaCastBar.lua

@@ -1,0 +1,15 @@
+------------------------------------------------------------------------
+r229 | sylvanaar | 2010-09-02 16:34:02 +0000 (Thu, 02 Sep 2010) | 1 line
+Changed paths:
+   M /trunk/BugSack.toc
+
+## X-Compatible-With: 40000
+------------------------------------------------------------------------
+r228 | rabbit | 2010-07-15 16:39:28 +0000 (Thu, 15 Jul 2010) | 1 line
+Changed paths:
+   M /trunk/BugSack.lua
+   M /trunk/BugSack.toc
+   M /trunk/config.lua
+
+Add font size option.
+------------------------------------------------------------------------

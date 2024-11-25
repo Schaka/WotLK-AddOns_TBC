@@ -1,0 +1,7 @@
+## Interface: 30300
+## Title: PlateCastBar
+## Author: raisnilt, Schaka
+## Notes: Shows enemy CastBars under nameplates.
+## SavedVariables: PlateCastBar_SavedVariables
+
+PlateCastBar.lua

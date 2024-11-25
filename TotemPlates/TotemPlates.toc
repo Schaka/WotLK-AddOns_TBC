@@ -1,0 +1,7 @@
+## Interface: 30300
+## Title: TotemPlates
+## Author: raisnilt
+## Notes: Nameplates
+## Version: 1.0
+
+TotemPlates.lua

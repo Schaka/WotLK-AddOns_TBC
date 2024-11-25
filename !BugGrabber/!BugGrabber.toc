@@ -1,0 +1,21 @@
+﻿## Interface: 30300
+## X-Compatible-With: 40000
+## Title: BugGrabber
+## Title-ruRU:Собиратель ошибок
+## Version: 2.2
+## Notes: Grabs bugs for the bug sack.
+## Notes-zhTW: 搜集錯誤訊息提供 BugSack 顯示。
+## Notes-esES: Graba errores para BugSack.
+## Author: Rabbit
+## X-Credits: Rowne, Ramble, kergoth, ckknight, Fritti
+## X-License: GPL v2 or later.
+## X-Category: Development Tools
+## X-Email: rabbit.magtheridon@gmail.com
+## SavedVariables: BugGrabberDB
+## X-Curse-Packaged-Version: r154
+## X-Curse-Project-Name: !BugGrabber
+## X-Curse-Project-ID: bug-grabber
+## X-Curse-Repository-ID: wow/bug-grabber/mainline
+
+BugGrabber.lua
+

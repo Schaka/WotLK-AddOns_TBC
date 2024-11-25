@@ -1,0 +1,10 @@
+## Interface: 30300
+## Title: Juked
+## Notes: Tracks interrupts and important cooldowns
+## Version: 1.3.7
+## Author: Robrman, inspired by Kollektiv
+## DefaultState: Enabled
+## SavedVariables: JukedDB
+
+Spells.lua
+Juked.lua

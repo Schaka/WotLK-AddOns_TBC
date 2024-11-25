@@ -1,0 +1,12 @@
+## Interface: 30300
+## Title: Icicle - XiCoN Edit
+## Notes: Adds enemy cooldowns to their nameplate
+## SavedVariables: Icicledb
+## Author: Thoth, Trolollolol - Sargeras - Molten-wow.com, edited by XiCoN-Qoo-
+## Version: 1.3.3-Beta
+
+Icicle.xml
+settings.lua
+Icicle.lua
+IcicleCds.lua
+sponsors.lua
