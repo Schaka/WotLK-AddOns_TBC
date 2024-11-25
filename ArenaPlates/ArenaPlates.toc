@@ -1,0 +1,7 @@
+## Interface: 50400
+## Title: ArenaPlates
+## Notes: Makes nameplates useful for arenas
+## Author: Schaka
+
+
+ArenaPlates.lua

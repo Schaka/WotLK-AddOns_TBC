@@ -80,6 +80,7 @@
 	<Script File="LeaderIcon.lua" />
 	<Script File="MasterLooterIcon.lua" />
 	<Script File="MultiGroupIcon.lua" />
+	<Script File="Nameplates.lua" />
 	<Script File="PetBattleIcon.lua" />
 	<Script File="PvPIcon.lua" />
 	<Script File="QuestIcon.lua" />
