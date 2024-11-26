@@ -17,12 +17,79 @@ local addonName, L = ...;
 local HealthBar = ArenaLive:ConstructHandler("HealthBar", true, true);
 local HealthBarText = ArenaLive:GetHandler("HealthBarText");
 
+local HEALCOMM = LibStub:GetLibrary("LibHealComm-4.0", true) or false
+local ABSORBCOMM = LibStub:GetLibrary("AbsorbsMonitor-1.0", true) or false
+
 HealthBar:RegisterEvent("UNIT_HEALTH");
 HealthBar:RegisterEvent("UNIT_FACTION");
 HealthBar:RegisterEvent("UNIT_MAXHEALTH");
 HealthBar:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED");
 HealthBar:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED");
 HealthBar:RegisterEvent("UNIT_HEAL_PREDICTION");
+
+local function UnitGetIncomingHeals(Unit, Healer, GUID)
+	if ( Unit ) then
+		if ( HEALCOMM ) then
+			if ( not GUID ) then
+				Unit = UnitGUID(Unit)
+				Healer = (Healer) and UnitGUID(Healer)
+			end
+
+			return HEALCOMM:GetHealAmount(Unit, HEALCOMM.ALL_HEALS, GetTime() + 5, Healer)
+		end
+	end
+end
+
+local function UnitGetTotalAbsorbs(Unit)
+	if ( Unit ) then
+		return (ABSORBCOMM) and ABSORBCOMM.Unit_Total(UnitGUID(Unit)) or 0
+	end
+end
+
+function HealthBar:OnFakeEvent(event, Arg1, Arg2, Arg3, Arg4, Arg5, ...)
+
+	for id, isRegistered in ArenaLive:GetAllUnitFrames() do
+		local unitFrame = ArenaLive:GetUnitFrameByID(id);
+		if ( unitFrame[self.name] ) then
+			local unit = unitFrame.unit
+
+			if unit then
+				local GUID = UnitGUID(unit)
+			
+				if ( (event == "EffectApplied" or event == "UnitUpdated" or event == "EffectRemoved" or event == "UnitCleared" or event == "AreaCreated" or event == "AreaCleared") ) then
+					if ( Arg1 == GUID or Arg3 == GUID ) then
+						self:OnEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", unit)
+					end
+				else
+					-- HealComm: Recursion
+					if ( ... ) then
+						Handler(self, event, nil, nil, nil, nil, ...)
+					end
+		
+					if ( Arg5 == GUID ) then
+						self:OnEvent("UNIT_HEAL_PREDICTION", unit)
+					end
+				end
+			end	
+		end
+	end
+	
+end
+
+HEALCOMM.RegisterCallback(HealthBar, "HealComm_HealStarted", "OnFakeEvent")
+HEALCOMM.RegisterCallback(HealthBar, "HealComm_HealUpdated", "OnFakeEvent")
+HEALCOMM.RegisterCallback(HealthBar, "HealComm_HealDelayed", "OnFakeEvent")
+HEALCOMM.RegisterCallback(HealthBar, "HealComm_HealStopped", "OnFakeEvent")
+HEALCOMM.RegisterCallback(HealthBar, "HealComm_ModifierChanged", "OnFakeEvent")
+HEALCOMM.RegisterCallback(HealthBar, "HealComm_GUIDDisappeared", "OnFakeEvent")
+ABSORBCOMM.RegisterCallback(HealthBar, "EffectApplied", "OnFakeEvent")
+ABSORBCOMM.RegisterCallback(HealthBar, "EffectUpdated", "OnFakeEvent")
+ABSORBCOMM.RegisterCallback(HealthBar, "EffectRemoved", "OnFakeEvent")
+ABSORBCOMM.RegisterCallback(HealthBar, "UnitUpdated", "OnFakeEvent")
+ABSORBCOMM.RegisterCallback(HealthBar, "UnitCleared", "OnFakeEvent")
+ABSORBCOMM.RegisterCallback(HealthBar, "AreaCreated", "OnFakeEvent")
+ABSORBCOMM.RegisterCallback(HealthBar, "AreaCleared", "OnFakeEvent")
+
 
 -- Legit units for frequent updates with their current HP.
 local frequentUpdates = 
@@ -177,7 +244,7 @@ function HealthBar:UpdateAbsorb (unitFrame)
 	local minValue, maxValue = healthBar:GetMinMaxValues();
 	local maxHealth = UnitHealthMax(unit);
 	local currHealth = healthBar.currValue;
-	local absorb = --[[UnitGetTotalAbsorbs(unit) or ]]0;
+	local absorb = UnitGetTotalAbsorbs(unit) or 0;
 
 	-- If max health is smaller than health + absorb, set max value of the healthbar to health + absorb.
 	if ( currHealth + absorb > maxHealth ) then
@@ -202,7 +269,7 @@ function HealthBar:UpdateAbsorb (unitFrame)
 		absorbBar:ClearAllPoints();
 		
 		-- Set the position of the absorb bar according to reverse fill settings of the healthbar
-		if ( healthBar:GetReverseFill() ) then
+		if ( false and healthBar:GetReverseFill() ) then -- FIXME
 			absorbBar:SetPoint("TOPRIGHT", healthBar:GetStatusBarTexture(), "TOPLEFT", 0, 0);
 			absorbBar:SetPoint("BOTTOMRIGHT",healthBar:GetStatusBarTexture(), "BOTTOMLEFT", 0, 0);
 		else
@@ -229,7 +296,7 @@ function HealthBar:UpdateAbsorb (unitFrame)
 				local xOffset = (maxHealth / maxValue) * totalWidth;
 				absorbBar.fullHPindicator:ClearAllPoints();
 						
-				if ( healthBar:GetReverseFill() ) then
+				if ( false and healthBar:GetReverseFill() ) then -- FIXME
 					absorbBar.fullHPindicator:SetPoint("TOPRIGHT", healthBar:GetStatusBarTexture(), "TOPRIGHT", -xOffset, 0);
 				else
 					absorbBar.fullHPindicator:SetPoint("TOPLEFT", healthBar:GetStatusBarTexture(), "TOPLEFT", xOffset, 0);
@@ -267,7 +334,7 @@ function HealthBar:UpdateHealPrediction (unitFrame)
 	
 	local maxHealth = UnitHealthMax(unit);
 	local currHealth = healthBar.currValue;
-	local predictedHeal = --[[UnitGetIncomingHeals(unit) or]] 0;
+	local predictedHeal = UnitGetIncomingHeals(unit) or 0;
 	if ( maxHealth <= 0 ) then
 		return;
 	end
@@ -282,7 +349,7 @@ function HealthBar:UpdateHealPrediction (unitFrame)
 		predictionBar:ClearAllPoints();
 			
 		-- Set the position of the health prediction bar according to reverse fill settings of the healthbar
-		if ( healthBar:GetReverseFill() ) then
+		if ( false and healthBar:GetReverseFill() ) then -- FIXME
 			predictionBar:SetPoint("TOPRIGHT", healthBar:GetStatusBarTexture(), "TOPLEFT", 0, 0);
 		else
 			predictionBar:SetPoint("TOPLEFT", healthBar:GetStatusBarTexture(), "TOPRIGHT", 0, 0);

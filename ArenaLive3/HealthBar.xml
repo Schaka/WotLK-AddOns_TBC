@@ -5,8 +5,8 @@
 	<Texture name="ArenaLive_HealPredictionBar" hidden="true" file="Interface\TargetingFrame\UI-StatusBar" virtual="true">
 		<Color r="0.0" g="0.827" b="0.765"/>
 	</Texture>
-	<Texture name="ArenaLive_AbsorbBarTemplate" hidden="true" file="Interface\RaidFrame\Shield-Fill" virtual="true" />
-	<Texture name="ArenaLive_AbsorbBarOverlayTemplate" hidden="true" file="Interface\RaidFrame\Shield-Overlay" vertTile="true" horizTile="true" virtual="true" />
+	<Texture name="ArenaLive_AbsorbBarTemplate" hidden="true" file="Interface\AddOns\!!!ClassicAPI\Texture\RaidFrame\Shield-Fill" virtual="true" />
+	<Texture name="ArenaLive_AbsorbBarOverlayTemplate" hidden="true" file="Interface\AddOns\!!!ClassicAPI\Texture\RaidFrame\Shield-Overlay" vertTile="true" horizTile="true" virtual="true" />
 	<Texture name="ArenaLive_AbsorbFullHPIndicator" hidden="true" virtual="true">
 		<Size>
 			<AbsDimension x="2" />

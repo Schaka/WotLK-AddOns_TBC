@@ -2,6 +2,7 @@ local PickupSpell = PickupSpell
 local GetSpellName  = GetSpellName
 local GetSpellInfo = GetSpellInfo
 local GameTooltip = GameTooltip
+local UIParent = UIParent
 
 function PickupSpellBookItem(id, bookType)
 	return PickupSpell(id, bookType)
@@ -31,7 +32,7 @@ function C_GetSpellTexture(spell, bookType)
 	else
 		_, _, icon = GetSpellInfo(spell)
 	end
-	return icon
+	return icon, icon
 end
 
 function C_GetSpellInfo(spell)
@@ -40,4 +41,12 @@ function C_GetSpellInfo(spell)
 		name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange = GetSpellInfo(spell)
 	end
 	return name, rank, icon, castTime, minRange, maxRange
+end
+
+function GetSpellSubtext(id)
+	if ( id ) then
+		local _, rank = GetSpellInfo(id)
+
+		return rank
+	end
 end

@@ -1,25 +1,22 @@
-local tinsert = tinsert
-local select = select
+local Select = select
 local GetMapZones = GetMapZones
 
 C_Map = C_Map or {}
 C_Map.WorldMap = {}
 
-local function LoadZones(obj, ...)
-	local n = select('#', ...)
-	for i=1, n do
-		local zone = select(i, ...)
-		tinsert(obj, zone)
+local function LoadZones(Obj, ...)
+	for i=1, Select('#', ...) do
+		Obj[i] = Select(i, ...)
 	end
 end
 
-for continentIndex = 1, 4 do
-	LoadZones(C_Map.WorldMap, GetMapZones(continentIndex))
+for ContinentIndex = 1, 4 do
+	LoadZones(C_Map.WorldMap, GetMapZones(ContinentIndex))
 end
 
-function C_Map.IsWorldMap(uiMap)
-	for _, value in pairs(C_Map.WorldMap) do
-		if ( value == uiMap ) then
+function C_Map.IsWorldMap(UIMap)
+	for _, Zone in pairs(C_Map.WorldMap) do
+		if ( Zone == UIMap ) then
 			return true
 		end
 	end

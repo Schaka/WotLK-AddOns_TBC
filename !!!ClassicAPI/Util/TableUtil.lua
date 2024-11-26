@@ -56,33 +56,12 @@ function CreateTableReverseEnumerator(tbl, minIndex, maxIndex)
 	return Enumerator, tbl, maxIndex;
 end
 
-function tDeleteItem(tbl, item)
-	local size = #tbl;
-	local index = size;
-	while index > 0 do
-		if item == tbl[index] then
-			tRemove(tbl, index);
-		end
-		index = index - 1;
-	end
-	return size - #tbl;
-end
-
 function tIndexOf(tbl, item)
 	for i, v in ipairs(tbl) do
 		if item == v then
 			return i;
 		end
 	end
-end
-
-function tContains(tbl, item)
-	for k, v in pairs(tbl) do
-		if item == v then
-			return true;
-		end
-	end
-	return false;
 end
 
 function TableUtil.ContainsAllKeys(lhsTable, rhsTable)
@@ -208,7 +187,7 @@ function tUnorderedRemove(tbl, index)
 	tRemove(tbl);
 end
 
-function CopyTable(settings, shallow)
+function C_CopyTable(settings, shallow)
 	local copy = {};
 	for k, v in pairs(settings) do
 		if type(v) == "table" and not shallow then

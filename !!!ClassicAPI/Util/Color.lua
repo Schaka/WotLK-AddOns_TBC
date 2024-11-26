@@ -1,6 +1,7 @@
 if ( ColorMixin or CreateColor ) then return end
 
 ColorMixin = {}
+ColorMixin.___CAPI = 1
 
 function CreateColor(r, g, b, a)
     local color = CreateFromMixins(ColorMixin)

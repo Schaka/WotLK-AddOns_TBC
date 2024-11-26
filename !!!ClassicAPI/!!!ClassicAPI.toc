@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Title: !!!ClassicAPI
-## Notes: Backported Classic's API for cross-compatible addons. - Author: |cff7f7fffTsoukie|r
-## Version: 1.1.16
+## Notes: Blizzard Classic API Emulation
+## Version: 1.1.64
 ## Author: Tsoukie
 Lib\Load.xml
 Load.xml

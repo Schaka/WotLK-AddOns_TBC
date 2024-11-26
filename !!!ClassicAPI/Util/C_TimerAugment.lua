@@ -1,115 +1,106 @@
-local setmetatable = setmetatable
-local type = type
-local tinsert = table.insert
-local tremove = table.remove
+local _G = _G
+local Call = pcall
+local Next = next
 
-local Timer = C_Timer or {}
-C_Timer = Timer
-Timer._version = 2 -- This needs to be 2, so others don't replace.
+local C_Timer = TimerFrame or CreateFrame("Frame", "TimerFrame")
+local ObjPool = {}
 
-local TickerPrototype = {}
-local TickerMetatable = {
-	__index = TickerPrototype,
-	__metatable = true
-}
+local function Pool(Timer)
+	Timer.Ref = nil
+	Timer.Callback = nil
+	Timer.Iteration = nil
+	ObjPool[#ObjPool+1] = Timer
+end
 
-local waitTable = {}
-local waitFrame = TimerFrame or CreateFrame("Frame", "TimerFrame")
-waitFrame:SetScript("OnUpdate", function(self, elapsed)
-	local wait = #waitTable
-	local total = wait
-	local i = 1
+local function Caller(Self)
+	Call(Self.Callback)
 
-	while i <= total do
-		local ticker = waitTable[i]
-
-		if ( ticker._cancelled ) then
-			tremove(waitTable, i)
-			total = total - 1
-		elseif ( ticker._delay > elapsed ) then
-			ticker._delay = ticker._delay - elapsed
-			i = i + 1
-		else
-			ticker._callback(ticker)
-
-			if ( ticker._remainingIterations == -1 ) then
-				ticker._delay = ticker._duration
-				i = i + 1
-			elseif ( ticker._remainingIterations > 1 ) then
-				ticker._remainingIterations = ticker._remainingIterations - 1
-				ticker._delay = ticker._duration
-				i = i + 1
-			elseif ( ticker._remainingIterations == 1 ) then
-				tremove(waitTable, i)
-				total = total - 1
+	if ( Self.Callback ) then
+		local Iteration = Self.Iteration
+		if ( Iteration ) then
+			if ( Iteration == 1 ) then
+				Self.Ref:Cancel()
+			else
+				Self.Iteration = Iteration - 1
 			end
+		elseif ( not Self.Ref ) then
+			Pool(Self)
 		end
 	end
-
-	if ( wait == 0 ) then
-		self:Hide()
-	end
-end)
-
-local function AddDelayedCall(ticker, oldTicker)
-	if ( oldTicker and type(oldTicker) == "table" ) then
-		ticker = oldTicker
-	end
-
-	tinsert(waitTable, ticker)
-	waitFrame:Show()
 end
 
-_G.AddDelayedCall = AddDelayedCall
+local function New()
+	local Index, Timer = Next(ObjPool)
 
-local function CreateTicker(duration, callback, iterations)
-	local ticker = setmetatable({}, TickerMetatable)
-	ticker._remainingIterations = iterations or -1
-	ticker._duration = duration
-	ticker._delay = duration
-	ticker._callback = callback
+	if ( Timer ) then
+		ObjPool[Index] = nil
+	else
+		local A = C_Timer:CreateAnimationGroup()
+		Timer = A:CreateAnimation("Animation")
+		Timer:SetScript("OnFinished", Caller)
+	end
 
-	AddDelayedCall(ticker)
-
-	return ticker
+	return Timer
 end
 
-function Timer.After(duration, callback, _)
+local function Cancel(Self)
+	if ( Self.__Timer ) then
+		Self.__Timer:Stop()
+		Pool(Self.__Timer)
+		Self.__Timer = nil
+	end
+end
+
+local function IsCancelled(Self)
+	return not Self.__Timer
+end
+
+local function Create(Duration, Callback, Iteration, Ticker)
+	local Timer = New()
+
+	Timer.Ref = Ticker and { __Timer = Timer, Cancel = Cancel, IsCancelled = IsCancelled }
+	Timer:GetParent():SetLooping(Ticker and "REPEAT" or "NONE")
+	Timer.Iteration = Iteration
+	Timer.Callback = Callback
+
+	Timer:SetDuration(Duration > 0 and Duration or .1)
+	Timer:Play()
+
+	return Timer.Ref
+end
+
+--[[
+	METHOD
+]]
+
+function C_Timer.After(Duration, Callback, _)
 	if ( _ ) then
-		duration = callback
-		callback = _
+		Duration = Callback
+		Callback = _
 	end
 
-	AddDelayedCall({
-		_remainingIterations = 1,
-		_delay = duration,
-		_callback = callback
-	})
+	Create(Duration, Callback)
 end
 
-function Timer.NewTimer(duration, callback, _)
+function C_Timer.NewTimer(Duration, Callback, _)
 	if ( _ ) then
-		duration = callback
-		callback = _
+		Duration = Callback
+		Callback = _
 	end
 
-	return CreateTicker(duration, callback, 1)
+	return Create(Duration, Callback, 1, true)
 end
 
-function Timer.NewTicker(duration, callback, iterations, _)
+function C_Timer.NewTicker(Duration, Callback, Iteration, _)
 	if ( _ ) then
-		duration = callback
-		callback = iterations
-		iterations = _
+		Duration = Callback
+		Callback = Iteration
+		Iteration = _
 	end
 
-	return CreateTicker(duration, callback, iterations)
+	return Create(Duration, Callback, Iteration, true)
 end
 
-function TickerPrototype:Cancel()
-	self._cancelled = true
-end
-
-function TickerPrototype:IsCancelled()
-	return self._cancelled
-end
+-- Global
+_G.C_Timer = C_Timer
+C_Timer._version = 2

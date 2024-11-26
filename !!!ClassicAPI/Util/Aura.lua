@@ -2,482 +2,323 @@ local UnitAura = UnitAura
 local UnitBuff = UnitBuff
 local UnitDebuff = UnitDebuff
 local GetSpellInfo = GetSpellInfo
-
-local AURA_CLASS
-local AURA_CAN_APPLY
+local UnitAffectingCombat = UnitAffectingCombat
 
 local _, CLASS_PLAYER = UnitClass("player")
 
-function C_UnitAura(...)
-	local Name, Rank, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID = UnitAura(...)
-	return Name, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID, SpellCanApplyAura(Name)
-end
-
-function C_UnitBuff(...)
-	local Name, Rank, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID = UnitBuff(...)
-	return Name, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID, SpellCanApplyAura(Name)
-end
-
-function C_UnitDebuff(...)
-	local Name, Rank, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID = UnitDebuff(...)
-	return Name, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID
-end
-
-function CompactUnitFrame_UtilShouldDisplayDebuff(...)
-	local _, _, _, _, _, _, _, Caster, _, _, SpellID = UnitDebuff(...)
-
-	if ( SpellID ) then
-		local HasCustom, AlwaysShowMine, ShowForMySpec = SpellGetVisibilityInfo(SpellID, UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT")
-		if ( HasCustom ) then
-			return ShowForMySpec or (AlwaysShowMine and (Caster == "player" or Caster == "pet" or Caster == "vehicle"))
-		end
-
-		return true
-	end
-end
+local AURA
 
 function SpellIsPriorityAura(SpellID)
-	return false
+    return false
 end
 
 function SpellCanApplyAura(SpellName)
-	if ( SpellName ) then
-		local Spell = AURA_CAN_APPLY[CLASS_PLAYER]
-
-		if ( Spell ) then
-			Spell = Spell[SpellName]
-
-			if ( Spell ) then
-				return Spell.canApplyAura
-			end
-		end
-	end
+    local Info = (SpellName) and AURA[SpellName]
+    return (Info and Info.CanApply)
 end
 
 function SpellAppliesOnlyYourself(SpellName)
-	if ( SpellName ) then
-		local Spell = AURA_CAN_APPLY[CLASS_PLAYER]
-
-		if ( Spell ) then
-			Spell = Spell[SpellName]
-
-			if ( Spell ) then
-				return Spell.appliesOnlyYourself
-			end
-		end
-	end
+    local Info = (SpellName) and AURA[SpellName]
+    return (Info and Info.SelfOnly)
 end
 
 function SpellIsSelfBuff(SpellID)
-	if ( SpellID ) then
-		local SpellName = GetSpellInfo(SpellID)
+    if ( SpellID ) then
+        local SpellName = GetSpellInfo(SpellID)
+        local Info = (SpellName) and AURA[SpellName]
 
-		if ( SpellName ) then
-			local Spell = AURA_CAN_APPLY[CLASS_PLAYER]
-
-			if ( Spell ) then
-				Spell = Spell[SpellName]
-
-				if ( Spell ) then
-					return Spell.appliesOnlyYourself, Spell.canApplyAura
-				end
-			end
-		end
-	end
+        if ( Info ) then
+            return Info.SelfOnly, Info.CanApply
+        end
+    end
 end
 
 function SpellGetVisibilityInfo(SpellID, Type)
-	if ( SpellID ) then
-		local SpellName = GetSpellInfo(SpellID)
+    if ( SpellID and Type ) then
+        local SpellName = GetSpellInfo(SpellID)
+        local Info = (SpellName) and AURA[SpellName]
 
-		if ( SpellName ) then
-			local Info = AURA_CLASS[SpellName]
+        if ( Info ) then
+            local ShowMine, ShowSpec
+            if ( Type == "RAID_INCOMBAT" ) then
+                ShowMine = Info.ShowMine_INCOMBAT
+                ShowSpec = Info.ShowSpec_INCOMBAT
+            elseif ( Type == "RAID_OUTOFCOMBAT" ) then
+                ShowMine = Info.ShowMine_OUTCOMBAT
+                ShowSpec = Info.ShowSpec_OUTCOMBAT
+            end
 
-			if ( Info ) then
-				Info = Info[Type]
+            return (ShowMine ~= nil or ShowSpec ~= nil), ShowMine, ShowSpec
+        end
+    end
+end
 
-				if ( Info ) then
-					return Info, Info.alwaysShowMine, Info.showForMySpec
-				end
-			end
-		end
-	end
+--[[
+
+    Aura Information
+
+]]
+
+local function Aura(SpellID, CanApply, SelfOnly, ShowMine_INCOMBAT, ShowMine_OUTCOMBAT, ShowSpec_INCOMBAT, ShowSpec_OUTCOMBAT)
+    AURA = AURA or {}
+
+    AURA[GetSpellInfo(SpellID)] = {
+        CanApply = CanApply, -- Player can cast it.
+        SelfOnly = SelfOnly, -- Spell is not usable on others.
+
+       --[[
+            Combat State Information: RAID_INCOMBAT, RAID_OUTOFCOMBAT
+                ShowMine: whether to show the spell if cast by the player/player's pet/vehicle (e.g. the Paladin Forbearance debuff)
+                ShowSpec: whether to show the spell for the current specialization of the player, it will override all others if set.
+        ]]
+        ShowMine_INCOMBAT = ShowMine_INCOMBAT,
+        ShowMine_OUTCOMBAT = ShowMine_OUTCOMBAT,
+
+        ShowSpec_INCOMBAT = ShowSpec_INCOMBAT,
+        ShowSpec_OUTCOMBAT = ShowSpec_OUTCOMBAT,
+    }
+end
+
+if ( CLASS_PLAYER == "DEATHKNIGHT" ) then
+    Aura(48265, true, true) -- Unholy Presence
+    Aura(48263, true, true) -- Frost Presence
+    Aura(48266, true, true) -- Blood Presence
+    Aura(45529, true, true) -- Blood Tap
+    Aura(49016, true, false) -- Hysteria
+    Aura(57330, true, false) -- Horn of Winter
+    Aura(49028, true, false) -- Dancing Rune Weapon
+
+    Aura(3714, true, false, false, true) -- Path of Frost
+elseif ( CLASS_PLAYER == "DRUID" ) then
+    Aura(29166, true, false) -- Innervate
+    Aura(9634, true, true) -- Dire Bear Form
+    Aura(768, true, true) -- Cat Form
+    Aura(48451, true, false) -- Lifebloom
+    Aura(48441, true, false) -- Rejuvenation
+    Aura(48443, true, false) -- Regrowth
+    Aura(53251, true, false) -- Wild Growth
+    Aura(61336, true, true) -- Survival Instincts
+    Aura(50334, true, true) -- Berserk
+    Aura(5229, true, true) -- Enrage
+    Aura(22812, true, true) -- Barkskin
+    Aura(53312, true, true) -- Nature's Grasp
+    Aura(22842, true, true) -- Frenzied Regeneration
+    Aura(2893, true, false) -- Abolish Poison
+
+    Aura(467, true, false, false, true) -- Thorns
+    Aura(1126, true, false, false, true) -- Mark of the Wild
+    Aura(21849, true, false, false, true) -- Gift of the Wild
+elseif ( CLASS_PLAYER == "HUNTER" ) then
+    Aura(5384, true, true) -- Feign Death
+    Aura(3045, true, true) -- Rapid Fire
+    Aura(53480, true, false) -- Roar of Sacrifice
+    Aura(53271, true, false) -- Master's Call
+    Aura(53476, true, false) -- Intervene
+
+    Aura(19506, true, false, false, true) -- Trueshot Aura
+elseif ( CLASS_PLAYER == "MAGE" ) then
+    Aura(43039, true, true) -- Ice Barrier
+    Aura(45438, true, true) -- Ice Block
+    Aura(43012, true, true) -- Frost Ward
+    Aura(43008, true, true) -- Ice Armor
+    Aura(7301, true, true) -- Frost Armor
+    Aura(12472, true, true) -- Icy Veins
+    Aura(43010, true, true) -- Fire Ward
+    Aura(43046, true, true) -- Molten Armor
+    Aura(43020, true, true) -- Mana Shield
+    Aura(43024, true, true) -- Mage Armor
+    Aura(66, true, true) -- Invisibility
+    Aura(130, true, false) -- Slow Fall
+    Aura(11213, true, true) -- Arcane Concentration
+    Aura(12043, true, true) -- Presence of Mind
+    Aura(12042, true, true) -- Arcane Power
+    Aura(31579, true, true) -- Arcane Empowerment
+
+    Aura(61024, true, false, false, true) -- Dalaran Intellect
+    Aura(61316, true, false, false, true) -- Dalaran Brilliance
+    Aura(42995, true, false, false, true) -- Arcane Intellect
+    Aura(43002, true, false, false, true) -- Arcane Brilliance
+    Aura(43015, true, false, false, true) -- Dampen Magic
+    Aura(54646, true, false, false, true) -- Focus Magic
+elseif ( CLASS_PLAYER == "PALADIN" ) then
+    Aura(53601, true, false) -- Sacred Shield
+    Aura(53563, true, false) -- Beacon of Light
+    Aura(6940, true, false) -- Hand of Sacrifice
+    Aura(64205, true, false) -- Divine Sacrifice
+    Aura(31821, true, true) -- Aura Mastery
+    Aura(642, true, true) -- Divine Shield
+    Aura(1022, true, false) -- Hand of Protection
+    Aura(1044, true, false) -- Hand of Freedom
+    Aura(54428, true, true) -- Divine Plea
+    Aura(48952, true, true) -- Holy Shield
+    Aura(48942, true, true) -- Devotion Aura
+    Aura(54043, true, true) -- Retribution Aura
+    Aura(19746, true, true) -- Concentration Aura
+    Aura(48943, true, true) -- Shadow Resistance Aura
+    Aura(48945, true, true) -- Frost Resistance Aura
+    Aura(48947, true, true) -- Fire Resistance Aura
+    Aura(32223, true, true) -- Crusader Aura
+    Aura(31884, true, true) -- Avenging Wrath
+    Aura(54203, true, false) -- Sheath of Light
+    Aura(20053, true, true) -- Vengeance
+    Aura(59578, true, true) -- The Art of War
+
+    Aura(20217, true, false, false, true) -- Blessing of Kings
+    Aura(25898, true, false, false, true) -- Greater Blessing of Kings
+    Aura(48936, true, false, false, true) -- Blessing of Wisdom
+    Aura(48938, true, false, false, true) -- Greater Blessing of Wisdom
+    Aura(48932, true, false, false, true) -- Blessing of Might
+    Aura(48934, true, false, false, true) -- Greater Blessing of Might
+    Aura(25899, true, false, false, true) -- Greater Blessing of Sanctuary
+    Aura(20911, true, false, false, true) -- Blessing of Sanctuary
+elseif ( CLASS_PLAYER == "PRIEST" ) then
+    Aura(48111, true, false) -- Prayer of Mending
+    Aura(33206, true, false) -- Pain Suppression
+    Aura(48068, true, false) -- Renew
+    Aura(48066, true, false) -- Power Word: Shield
+    Aura(72418, true, true) -- Chilling Knowledge
+    Aura(47930, false, false) -- Grace
+    Aura(10060, true, false) -- Power Infusion
+    Aura(586, true, true) -- Fade
+    Aura(48168, true, true) -- Inner Fire
+    Aura(14751, true, true) -- Inner Focus
+    Aura(6346, true, false) -- Fear Ward
+    Aura(64901, true, false) -- Hymn of Hope
+    Aura(1706, true, false) -- Levitate
+    Aura(64843, false, false) -- Divine Hymn
+    Aura(59891, false, false) -- Borrowed Time
+    Aura(552, true, false) -- Abolish Disease
+    Aura(15473, true, true) -- Shadowform
+    Aura(15286, true, true) -- Vampiric Embrace
+    Aura(49694, true, true) -- Improved Spirit Tap
+    Aura(47788, true, false) -- Guardian Spirit
+    Aura(33151, true, true) -- Surge of Light
+    Aura(33151, true, true) -- Inspiration
+    Aura(7001, true, false) -- Lightwell Renew
+    Aura(27827, true, true) -- Spirit of Redemption
+    Aura(63734, true, true) -- Serendipity
+    Aura(65081, true, false) -- Body and Soul
+    Aura(63944, false, false) -- Renewed Hope
+
+    Aura(48073, true, false, false, true) -- Divine Spirit
+    Aura(48074, true, false, false, true) -- Prayer of Spirit
+    Aura(48169, true, false, false, true) -- Shadow Protection
+    Aura(48170, true, false, false, true) -- Prayer of Shadow Protection
+    Aura(48162, true, false, false, true) -- Prayer of Fortitude
+    Aura(48161, true, false, false, true) -- Power Word: Fortitude
+elseif ( CLASS_PLAYER == "ROGUE" ) then
+    Aura(1784, true, true) -- Stealth
+    Aura(31665, true, true) -- Master of Subtlety
+    Aura(26669, true, true) -- Evasion
+    Aura(11305, true, true) -- Sprint
+    Aura(26888, true, true) -- Vanish
+    Aura(36554, true, true) -- Shadowstep
+    Aura(48659, true, true) -- Feint
+    Aura(31224, true, true) -- Clock of Shadow
+    Aura(51713, true, true) -- Shadow dance
+    Aura(14177, true, true) -- Cold Blood
+    Aura(57934, true, false) -- Tricks of the Trade
+elseif ( CLASS_PLAYER == "SHAMAN" ) then
+    Aura(49284, true, false) -- Earth Shield
+    Aura(8515, false, false) -- Windfury Totem
+    Aura(8178, true, false) -- Grounding Totem
+    Aura(32182, true, false) -- Heroism
+    Aura(2825, true, false) -- Bloodlust
+    Aura(61301, true, false) -- Riptide
+    Aura(51466, true, false) -- Elemental Oath
+elseif ( CLASS_PLAYER == "WARLOCK" ) then
+    Aura(2947, true, false) -- Fire Shield
+    Aura(132, true, false) -- Detect Invisibility
+    Aura(19028, true, false) -- Soul Link
+    Aura(54424, true, false) -- Fel Intelligence
+elseif ( CLASS_PLAYER == "WARRIOR" ) then
+    Aura(2687, true, true) -- Bloodrage
+    Aura(18499, true, true) -- Berserker Rage
+    Aura(12328, true, true) -- Sweeping Strikes
+    Aura(23920, true, true) -- Spell Reflection
+    Aura(871, true, true) -- Shield Wall
+    Aura(2565, true, true) -- Shield Block
+    Aura(55694, true, true) -- Enraged Regeneration
+    Aura(1719, true, true) -- Recklessness
+    Aura(57522, true, true) -- Enrage
+    Aura(20230, true, true) -- Retaliation
+    Aura(46924, true, true) -- Bladestorm
+    Aura(47440, true, false) -- Commanding Shout
+    Aura(47436, true, false) -- Battle Shout
+    Aura(46913, true, true) -- Bloodsurge
+    Aura(12292, true, true) -- Death Wish
+    Aura(16492, true, true) -- Blood Craze
+    Aura(65156, true, true) -- Juggernaut
+    Aura(3411, true, false) -- Intervene
+end
+
+--[[
+
+    Global Auras
+
+]]
+
+Aura(69127, nil, nil, nil, nil, false, true) -- Chill of the Throne
+Aura(26013, nil, nil, nil, nil, false, true) -- Deserter
+Aura(31694, nil, nil, nil, nil, false, false) -- Strange Feeling
+Aura(70013, nil, nil, nil, nil, false, false) -- Quel'Delar's Compulsion
+
+-- TODO: Add PvP flags as a priority buff.
+
+--[[
+
+    UNITAURA / UNITBUFF / UNITDEBUFF
+    Modern payload.
+
+]]
+
+function C_UnitAura(...)
+    local Name, Rank, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID = UnitAura(...)
+    local Aura = AURA[Name]
+    return Name, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID, (Aura and Aura.CanApply)
+end
+
+function C_UnitBuff(...)
+    local Name, Rank, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID = UnitBuff(...)
+    local Aura = AURA[Name]
+    return Name, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID, (Aura and Aura.CanApply)
+end
+
+function C_UnitDebuff(...)
+    local Name, Rank, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID = UnitDebuff(...)
+    return Name, Icon, Count, Type, Duration, Expire, Caster, Steal, Consolidate, ID
+end
+
+--[[
+
+    CompactUnitFrame_UtilShouldDisplayDebuff
+    Note: Support if CompactRaidFrames not installed.
+
+]]
+local SpellGetVisibilityInfo = SpellGetVisibilityInfo
+
+function CompactUnitFrame_UtilShouldDisplayDebuff(...)
+    local _, _, _, _, _, _, _, Caster, _, _, SpellID = UnitDebuff(...)
+
+    if ( SpellID ) then
+        local HasCustom, AlwaysShowMine, ShowForMySpec = SpellGetVisibilityInfo(SpellID, UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT")
+        if ( HasCustom ) then
+            return ShowForMySpec or (AlwaysShowMine and (Caster == "player" or Caster == "pet" or Caster == "vehicle"))
+        end
+
+        return true
+    end
 end
 
 --[[ TODO
 function UnitAuraBySlot(unit, slot)
-	if ( unit and LibAura ) then
-		return LibAura:UnitAuraBySlot(unit, slot)
-	end
+    if ( unit and LibAura ) then
+        return LibAura:UnitAuraBySlot(unit, slot)
+    end
 end
 
 function UnitAuraSlots(unit, filter, maxCount, continuationToken)
-	if ( unit and LibAura ) then
-		return LibAura:UnitAuraSlots(unit, filter, maxCount, continuationToken)
-	end
+    if ( unit and LibAura ) then
+        return LibAura:UnitAuraSlots(unit, filter, maxCount, continuationToken)
+    end
 end]]
-
-
---[[
-
-	Aura Information
-
-]]
-
-local function SetClassAuraData(hasCustom, alwaysShowMine, showForMySpec)
-    return {
-        hasCustom = hasCustom, -- whether the spell visibility should be customized, if false it means always display
-        alwaysShowMine = alwaysShowMine,-- whether to show the spell if cast by the player/player's pet/vehicle (e.g. the Paladin Forbearance debuff)
-        showForMySpec = showForMySpec, -- whether to show the spell for the current specialization of the player
-    }
-end
-
-AURA_CLASS = {
-    --== PRIEST ==--
-    -- Divine Spirit
-    [GetSpellInfo(48073)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PRIEST", false),
-    },
-    -- Prayer of Spirit
-    [GetSpellInfo(48074)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PRIEST", false),
-    },
-    -- Shadow Protection
-    [GetSpellInfo(48169)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PRIEST", false),
-    },
-    -- Prayer of Shadow Protection
-    [GetSpellInfo(48170)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PRIEST", false),
-    },
-    -- Prayer of Fortitude
-    [GetSpellInfo(48162)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PRIEST", false),
-    },
-    -- Power Word: Fortitude
-    [GetSpellInfo(48161)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PRIEST", false),
-    },
-
-    --== HUNTER ==--
-    -- Trueshot Aura
-    [GetSpellInfo(19506)] = {
-        ["RAID_INCOMBAT"]   = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "HUNTER", false),
-    },
-
-    --== DEATHKNIGHT ==--
-    -- Path of Frost
-    [GetSpellInfo(3714)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "DEATHKNIGHT", false),
-    },
-
-    --== PALADIN ==--
-    -- Blessing of Kings
-    [GetSpellInfo(20217)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PALADIN", false),
-    },
-    -- Greater Blessing of Kings
-    [GetSpellInfo(25898)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PALADIN", false),
-    },
-    -- Blessing of Wisdom
-    [GetSpellInfo(48936)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PALADIN", false),
-    },
-    -- Greater Blessing of Wisdom
-    [GetSpellInfo(48938)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PALADIN", false),
-    },
-    -- Blessing of Might
-    [GetSpellInfo(48932)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PALADIN", false),
-    },
-    -- Greater Blessing of Might
-    [GetSpellInfo(48934)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PALADIN", false),
-    },
-    -- Blessing of Sanctuary
-    [GetSpellInfo(20911)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PALADIN", false),
-    },
-    -- Greater Blessing of Sanctuary
-    [GetSpellInfo(25899)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "PALADIN", false),
-    },
-
-    --== DRUID ==--
-    -- Mark of the Wild
-    [GetSpellInfo(48469)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "DRUID", false),
-    },
-    -- Gift of the Wild
-    [GetSpellInfo(48470)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "DRUID", false),
-    },
-
-    --== MAGE ==--
-    -- Arcane Intellect
-    [GetSpellInfo(42995)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "MAGE", false),
-    },
-    -- Dalaran Intellect
-    [GetSpellInfo(61024)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "MAGE", false),
-    },
-    -- Dalaran Brilliance
-    [GetSpellInfo(61316)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "MAGE", false),
-    },
-    -- Arcane Brilliance
-    [GetSpellInfo(43002)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "MAGE", false),
-    },
-    -- Dampen Magic
-    [GetSpellInfo(43015)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "MAGE", false),
-    },
-    -- Focus Magic
-    [GetSpellInfo(54646)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, CLASS_PLAYER == "MAGE", false),
-    },
-
-    --== ANY DEBUFF SPELLS ==--
-    -- Chill of the Throne
-    [GetSpellInfo(69127)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, false, true),
-    },
-    -- Deserter
-    [GetSpellInfo(26013)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, false, true),
-    },
-    -- Strange Feeling
-    [GetSpellInfo(31694)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, false, false),
-    },
-    -- Quel'Delar's Compulsion
-    [GetSpellInfo(70013)] = {
-        ["RAID_INCOMBAT"]    = SetClassAuraData(true, false, false),
-        ["RAID_OUTOFCOMBAT"] = SetClassAuraData(true, false, false),
-    },
-}
-
-local function SetAuraInfo(canApplyAura, appliesOnlyYourself)
-    return {
-        canApplyAura = canApplyAura,
-        appliesOnlyYourself = appliesOnlyYourself
-    }
-end
-
-AURA_CAN_APPLY = {
-    ["DEATHKNIGHT"] =
-        {
-            [GetSpellInfo(48265)] = SetAuraInfo(true, true),  -- Unholy Presence
-            [GetSpellInfo(48263)] = SetAuraInfo(true, true),  -- Frost Presence
-            [GetSpellInfo(48266)] = SetAuraInfo(true, true),  -- Blood Presence
-            [GetSpellInfo(45529)] = SetAuraInfo(true, true),  -- Blood Tap
-            [GetSpellInfo(49016)] = SetAuraInfo(true, false), -- Hysteria
-            [GetSpellInfo(57330)] = SetAuraInfo(true, false), -- Horn of Winter
-            [GetSpellInfo(49028)] = SetAuraInfo(true, false), -- Dancing Rune Weapon
-        },
-    ["DRUID"] =
-        {
-            [GetSpellInfo(29166)] = SetAuraInfo(true, false), -- Innervate
-            [GetSpellInfo(9634)]  = SetAuraInfo(true, true),  -- Dire Bear Form
-            [GetSpellInfo(768)]   = SetAuraInfo(true, true),  -- Cat Form
-            [GetSpellInfo(48451)] = SetAuraInfo(true, false), -- Lifebloom
-            [GetSpellInfo(48441)] = SetAuraInfo(true, false), -- Rejuvenation
-            [GetSpellInfo(48443)] = SetAuraInfo(true, false), -- Regrowth
-            [GetSpellInfo(53251)] = SetAuraInfo(true, false), -- Wild Growth
-            [GetSpellInfo(61336)] = SetAuraInfo(true, true),  -- Survival Instincts
-            [GetSpellInfo(50334)] = SetAuraInfo(true, true),  -- Berserk
-            [GetSpellInfo(5229)]  = SetAuraInfo(true, true),  -- Enrage
-            [GetSpellInfo(22812)] = SetAuraInfo(true, true),  -- Barkskin
-            [GetSpellInfo(53312)] = SetAuraInfo(true, true),  -- Nature's Grasp
-            [GetSpellInfo(22842)] = SetAuraInfo(true, true),  -- Frenzied Regeneration
-            [GetSpellInfo(2893)]  = SetAuraInfo(true, false), -- Abolish Poison
-            [GetSpellInfo(467)]   = SetAuraInfo(true, false), -- Thorns
-            [GetSpellInfo(1126)]  = SetAuraInfo(true, false), -- Mark of the Wild
-            [GetSpellInfo(21849)] = SetAuraInfo(true, false), -- Gift of the Wild
-        },
-    ["HUNTER"] =
-        {
-            [GetSpellInfo(5384)]  = SetAuraInfo(true, true),  -- Feign Death
-            [GetSpellInfo(3045)]  = SetAuraInfo(true, true),  -- Rapid Fire
-            [GetSpellInfo(53480)] = SetAuraInfo(true, false), -- Roar of Sacrifice
-            [GetSpellInfo(53271)] = SetAuraInfo(true, false), -- Master's Call
-            [GetSpellInfo(19506)] = SetAuraInfo(true, false), -- Trueshot Aura
-            [GetSpellInfo(53476)] = SetAuraInfo(true, false), -- Intervene
-        },
-    ["MAGE"] =
-        {
-            [GetSpellInfo(43039)] = SetAuraInfo(true, true),  -- Ice Barrier
-            [GetSpellInfo(45438)] = SetAuraInfo(true, true),  -- Ice Block
-            [GetSpellInfo(42995)] = SetAuraInfo(true, false), -- Arcane Intellect
-            [GetSpellInfo(61316)] = SetAuraInfo(true, false), -- Dalaran Brilliance
-            [GetSpellInfo(43002)] = SetAuraInfo(true, false), -- Arcane Brilliance
-            [GetSpellInfo(43015)] = SetAuraInfo(true, false), -- Dampen Magic
-            [GetSpellInfo(54646)] = SetAuraInfo(true, false), -- Focus Magic
-            [GetSpellInfo(61024)] = SetAuraInfo(true, false), -- Dalaran Intellect
-            [GetSpellInfo(43012)] = SetAuraInfo(true, true),  -- Frost Ward
-            [GetSpellInfo(43008)] = SetAuraInfo(true, true),  -- Ice Armor
-            [GetSpellInfo(7301)]  = SetAuraInfo(true, true),  -- Frost Armor
-            [GetSpellInfo(12472)] = SetAuraInfo(true, true),  -- Icy Veins
-            [GetSpellInfo(43010)] = SetAuraInfo(true, true),  -- Fire Ward
-            [GetSpellInfo(43046)] = SetAuraInfo(true, true),  -- Molten Armor
-            [GetSpellInfo(43020)] = SetAuraInfo(true, true),  -- Mana Shield
-            [GetSpellInfo(43024)] = SetAuraInfo(true, true),  -- Mage Armor
-            [GetSpellInfo(66)]    = SetAuraInfo(true, true),  -- Invisibility
-            [GetSpellInfo(130)]   = SetAuraInfo(true, false), -- Slow Fall
-            [GetSpellInfo(11213)] = SetAuraInfo(true, true),  -- Arcane Concentration
-            [GetSpellInfo(12043)] = SetAuraInfo(true, true),  -- Presence of Mind
-            [GetSpellInfo(12042)] = SetAuraInfo(true, true),  -- Arcane Power
-            [GetSpellInfo(31579)] = SetAuraInfo(true, true),  -- Arcane Empowerment
-        },
-    ["PALADIN"] =
-        {
-            [GetSpellInfo(53601)] = SetAuraInfo(true, false), -- Sacred Shield
-            [GetSpellInfo(53563)] = SetAuraInfo(true, false), -- Beacon of Light
-            [GetSpellInfo(6940)]  = SetAuraInfo(true, false), -- Hand of Sacrifice
-            [GetSpellInfo(64205)] = SetAuraInfo(true, false),  -- Divine Sacrifice
-            [GetSpellInfo(31821)] = SetAuraInfo(true, true),  -- Aura Mastery
-            [GetSpellInfo(642)]   = SetAuraInfo(true, true),  -- Divine Shield
-            [GetSpellInfo(1022)]  = SetAuraInfo(true, false), -- Hand of Protection
-            [GetSpellInfo(1044)]  = SetAuraInfo(true, false), -- Hand of Freedom
-            [GetSpellInfo(54428)] = SetAuraInfo(true, true),  -- Divine Plea
-            [GetSpellInfo(20217)] = SetAuraInfo(true, false), -- Blessing of Kings
-            [GetSpellInfo(25898)] = SetAuraInfo(true, false), -- Greater Blessing of Kings
-            [GetSpellInfo(48936)] = SetAuraInfo(true, false), -- Blessing of Wisdom
-            [GetSpellInfo(48938)] = SetAuraInfo(true, false), -- Greater Blessing of Wisdom
-            [GetSpellInfo(48932)] = SetAuraInfo(true, false), -- Blessing of Might
-            [GetSpellInfo(48934)] = SetAuraInfo(true, false), -- Greater Blessing of Might
-            [GetSpellInfo(25899)] = SetAuraInfo(true, false), -- Greater Blessing of Sanctuary
-            [GetSpellInfo(20911)] = SetAuraInfo(true, false), -- Blessing of Sanctuary
-            [GetSpellInfo(48952)] = SetAuraInfo(true, true),  -- Holy Shield
-            [GetSpellInfo(48942)] = SetAuraInfo(true, true),  -- Devotion Aura
-            [GetSpellInfo(54043)] = SetAuraInfo(true, true),  -- Retribution Aura
-            [GetSpellInfo(19746)] = SetAuraInfo(true, true),  -- Concentration Aura
-            [GetSpellInfo(48943)] = SetAuraInfo(true, true),  -- Shadow Resistance Aura
-            [GetSpellInfo(48945)] = SetAuraInfo(true, true),  -- Frost Resistance Aura
-            [GetSpellInfo(48947)] = SetAuraInfo(true, true),  -- Fire Resistance Aura
-            [GetSpellInfo(32223)] = SetAuraInfo(true, true),  -- Crusader Aura
-            [GetSpellInfo(31884)] = SetAuraInfo(true, true),  -- Avenging Wrath
-            [GetSpellInfo(54203)] = SetAuraInfo(true, false), -- Sheath of Light
-            [GetSpellInfo(20053)] = SetAuraInfo(true, true),  -- Vengeance
-            [GetSpellInfo(59578)] = SetAuraInfo(true, true),  -- The Art of War
-        },
-    ["PRIEST"] =
-        {
-            [GetSpellInfo(48111)] = SetAuraInfo(true, false), -- Prayer of Mending
-            [GetSpellInfo(33206)] = SetAuraInfo(true, false), -- Pain Suppression
-            [GetSpellInfo(48068)] = SetAuraInfo(true, false), -- Renew
-            [GetSpellInfo(48162)] = SetAuraInfo(true, false), -- Prayer of Fortitude
-            [GetSpellInfo(48161)] = SetAuraInfo(true, false), -- Power Word: Fortitude
-            [GetSpellInfo(48066)] = SetAuraInfo(true, false), -- Power Word: Shield
-            [GetSpellInfo(48073)] = SetAuraInfo(true, false), -- Divine Spirit
-            [GetSpellInfo(48074)] = SetAuraInfo(true, false), -- Prayer of Spirit
-            [GetSpellInfo(48169)] = SetAuraInfo(true, false), -- Shadow Protection
-            [GetSpellInfo(48170)] = SetAuraInfo(true, false), -- Prayer of Shadow Protection
-            [GetSpellInfo(72418)] = SetAuraInfo(true, true),  -- Chilling Knowledge
-            [GetSpellInfo(47930)] = SetAuraInfo(false, false), -- Grace
-            [GetSpellInfo(10060)] = SetAuraInfo(true, false),  -- Power Infusion
-            [GetSpellInfo(586)]   = SetAuraInfo(true, true),  -- Fade
-            [GetSpellInfo(48168)] = SetAuraInfo(true, true),  -- Inner Fire
-            [GetSpellInfo(14751)] = SetAuraInfo(true, true),  -- Inner Focus
-            [GetSpellInfo(6346)]  = SetAuraInfo(true, false),  -- Fear Ward
-            [GetSpellInfo(64901)] = SetAuraInfo(true, false), -- Hymn of Hope
-            [GetSpellInfo(1706)]  = SetAuraInfo(true, false), -- Levitate
-            [GetSpellInfo(64843)] = SetAuraInfo(false, false), -- Divine Hymn
-            [GetSpellInfo(59891)] = SetAuraInfo(false, false),  -- Borrowed Time
-            [GetSpellInfo(552)]   = SetAuraInfo(true, false), -- Abolish Disease
-            [GetSpellInfo(15473)] = SetAuraInfo(true, true),  -- Shadowform
-            [GetSpellInfo(15286)] = SetAuraInfo(true, true),  -- Vampiric Embrace
-            [GetSpellInfo(49694)] = SetAuraInfo(true, true),  -- Improved Spirit Tap
-            [GetSpellInfo(47788)] = SetAuraInfo(true, false), -- Guardian Spirit
-            [GetSpellInfo(33151)] = SetAuraInfo(true, true),  -- Surge of Light
-            [GetSpellInfo(33151)] = SetAuraInfo(true, true),  -- Inspiration
-            [GetSpellInfo(7001)]  = SetAuraInfo(true, false), -- Lightwell Renew
-            [GetSpellInfo(27827)] = SetAuraInfo(true, true),  -- Spirit of Redemption
-            [GetSpellInfo(63734)] = SetAuraInfo(true, true),  -- Serendipity
-            [GetSpellInfo(65081)] = SetAuraInfo(true, false), -- Body and Soul
-            [GetSpellInfo(63944)] = SetAuraInfo(false, false), -- Renewed Hope
-        },
-    ["ROGUE"] =
-        {
-            [GetSpellInfo(1784)]  = SetAuraInfo(true, true),  -- Stealth
-            [GetSpellInfo(31665)] = SetAuraInfo(true, true),  -- Master of Subtlety
-            [GetSpellInfo(26669)] = SetAuraInfo(true, true),  -- Evasion
-            [GetSpellInfo(11305)] = SetAuraInfo(true, true),  -- Sprint
-            [GetSpellInfo(26888)] = SetAuraInfo(true, true),  -- Vanish
-            [GetSpellInfo(36554)] = SetAuraInfo(true, true),  -- Shadowstep
-            [GetSpellInfo(48659)] = SetAuraInfo(true, true),  -- Feint
-            [GetSpellInfo(31224)] = SetAuraInfo(true, true),  -- Clock of Shadow
-            [GetSpellInfo(51713)] = SetAuraInfo(true, true),  -- Shadow dance
-            [GetSpellInfo(14177)] = SetAuraInfo(true, true),  -- Cold Blood
-            [GetSpellInfo(57934)] = SetAuraInfo(true, false), -- Tricks of the Trade
-        },
-    ["SHAMAN"] =
-        {
-            [GetSpellInfo(49284)] = SetAuraInfo(true, false), -- Earth Shield
-            [GetSpellInfo(8515)]  = SetAuraInfo(false, false), -- Windfury Totem
-            [GetSpellInfo(8178)]  = SetAuraInfo(true, false), -- Grounding Totem
-            [GetSpellInfo(32182)] = SetAuraInfo(true, false), -- Heroism
-            [GetSpellInfo(2825)]  = SetAuraInfo(true, false), -- Bloodlust
-            [GetSpellInfo(61301)] = SetAuraInfo(true, false), -- Riptide
-            [GetSpellInfo(51466)] = SetAuraInfo(true, false), -- Elemental Oath
-        },
-    ["WARLOCK"] =
-    	{
-    		[GetSpellInfo(2947)]  = SetAuraInfo(true, false), -- Fire Shield
-    		[GetSpellInfo(132)]   = SetAuraInfo(true, false), -- Detect Invisibility
-    		[GetSpellInfo(19028)] = SetAuraInfo(true, false), -- Soul Link
-    		[GetSpellInfo(54424)] = SetAuraInfo(true, false), -- Fel Intelligence
-    	},
-    ["WARRIOR"] =
-        {
-            [GetSpellInfo(2687)]  = SetAuraInfo(true, true),  -- Bloodrage
-            [GetSpellInfo(18499)] = SetAuraInfo(true, true),  -- Berserker Rage
-            [GetSpellInfo(12328)] = SetAuraInfo(true, true),  -- Sweeping Strikes
-            [GetSpellInfo(23920)] = SetAuraInfo(true, true),  -- Spell Reflection
-            [GetSpellInfo(871)]   = SetAuraInfo(true, true),  -- Shield Wall
-            [GetSpellInfo(2565)]  = SetAuraInfo(true, true),  -- Shield Block
-            [GetSpellInfo(55694)] = SetAuraInfo(true, true),  -- Enraged Regeneration
-            [GetSpellInfo(1719)]  = SetAuraInfo(true, true),  -- Recklessness
-            [GetSpellInfo(57522)] = SetAuraInfo(true, true),  -- Enrage
-            [GetSpellInfo(20230)] = SetAuraInfo(true, true),  -- Retaliation
-            [GetSpellInfo(46924)] = SetAuraInfo(true, true),  -- Bladestorm
-            [GetSpellInfo(47440)] = SetAuraInfo(true, false), -- Commanding Shout
-            [GetSpellInfo(47436)] = SetAuraInfo(true, false), -- Battle Shout
-            [GetSpellInfo(46913)] = SetAuraInfo(true, true),  -- Bloodsurge
-            [GetSpellInfo(12292)] = SetAuraInfo(true, true),  -- Death Wish
-            [GetSpellInfo(16492)] = SetAuraInfo(true, true),  -- Blood Craze
-            [GetSpellInfo(65156)] = SetAuraInfo(true, true),  -- Juggernaut
-            [GetSpellInfo(3411)]  = SetAuraInfo(true, false), -- Intervene
-        },
-}

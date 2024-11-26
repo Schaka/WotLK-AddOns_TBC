@@ -12,19 +12,22 @@ local UnitName = UnitName
 local PromoteToAssistant = PromoteToAssistant
 local DemoteAssistant = DemoteAssistant
 local NewTicker = C_Timer.NewTicker
-
-function IsRaidMarkerActive(index)
-    return false
-end
+local LE_PARTY_CATEGORY_INSTANCE = LE_PARTY_CATEGORY_INSTANCE
 
 function GetDisplayedAllyFrames()
 end
 
-function IsInGroup()
+function IsInGroup(LE_CATEGORY)
+	if ( LE_CATEGORY and LE_CATEGORY == LE_PARTY_CATEGORY_INSTANCE ) then
+		return false
+	end
 	return GetNumRaidMembers() > 0 or GetNumPartyMembers() > 0
 end
 
-function IsInRaid()
+function IsInRaid(LE_CATEGORY)
+	if ( LE_CATEGORY and LE_CATEGORY ~= LE_PARTY_CATEGORY_INSTANCE ) then
+		return false
+	end
 	return GetNumRaidMembers() > 0
 end
 
@@ -33,7 +36,14 @@ function GetNumSubgroupMembers()
 end
 
 function GetNumGroupMembers()
-	return IsInRaid() and GetNumRaidMembers() or GetNumPartyMembers()
+	local Total = GetNumRaidMembers()
+
+	if ( Total < 1 ) then
+		Total = GetNumPartyMembers()
+		Total = (Total > 0) and Total+1 or 0
+	end
+
+	return Total
 end
 
 function UnitIsGroupLeader(unit)

@@ -6,7 +6,6 @@ IOF:SetPoint("CENTER", UIParent, "CENTER")
 InterfaceOptionsFrameCategories:SetPoint("BOTTOMLEFT", IOF, "BOTTOMLEFT", 22, 50)
 InterfaceOptionsFrameAddOns:SetPoint("BOTTOMLEFT", IOF, "BOTTOMLEFT", 22, 50)
 
-IOF:SetFrameStrata("FULLSCREEN_DIALOG")
 IOF:SetSize(WIDTH, HEIGHT)
 IOF:SetToplevel(true)
 IOF:HookScript("OnShow", function()

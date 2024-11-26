@@ -12,6 +12,8 @@ local relevantUnits = {
 	"arena1",
 	"arena2",
 	"arena3",
+    "arena4",
+	"arena5",
 	"party1",
 	"party2",
 	"party3",

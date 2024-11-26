@@ -280,7 +280,7 @@ Frame.IsForbidden = Method_TODO
 		FrameTexture.GetNumMaskTextures = function(Self) return 0 end
 		FrameTexture.SetSnapToPixelGrid = Method_TODO
 		FrameTexture.SetTexelSnappingBias = Method_TODO
-		FrameTexture.SetColorTexture = function(Self, ...) Self:SetVertexColor(...) end
+		FrameTexture.SetColorTexture = function(Self, ...) Self:SetTexture(...) end
 			-- Line
 				FrameTexture.SetThickness = Method_TODO
 				FrameTexture.SetStartPoint = Method_TODO
@@ -330,7 +330,7 @@ CheckButton.ClearAndSetPoint = Method_ClearAndSetPoint
 
 -- COOLDOWN
 hooksecurefunc(Cooldown, "SetCooldown", Method_SetCooldown)
-Cooldown.Clear = function(Self) Self:SetCooldown(0, 0) end
+Cooldown.Clear = function(Self) Self:Hide() end
 Cooldown.SetHideCountdownNumbers = function(Self, Hide) Self.noCooldownCount = (Hide) and true or nil end
 Cooldown.SetDrawBling = Method_TODO
 Cooldown.SetDrawSwipe = Method_TODO

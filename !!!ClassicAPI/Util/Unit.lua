@@ -1,77 +1,52 @@
-local UnitGUID = UnitGUID
-local UnitIsConnected = UnitIsConnected
-local GetPlayerMapPosition = GetPlayerMapPosition
+local _, Private = ...
+
 local UnitIsTapped = UnitIsTapped
+local UnitIsConnected = UnitIsConnected
 local UnitIsTappedByPlayer = UnitIsTappedByPlayer
+local GetPlayerMapPosition = GetPlayerMapPosition
 local UnitIsTappedByAllThreatList = UnitIsTappedByAllThreatList
 
-local UNIT_ID_ALL
-local UNIT_ID_TOTAL
-
-function FindUnitID(GUID)
-	local UnitID
-
-	if ( not UNIT_ID_ALL ) then
-		UNIT_ID_ALL = {"target", "focus", "player", "party1", "party2", "party3", "party4"}
-
-		for i=1, 40 do
-			UNIT_ID_ALL[#UNIT_ID_ALL+1] = "raid"..i
-		end
-
-		UNIT_ID_TOTAL = #UNIT_ID_ALL
-	end
-
-	for i=1, UNIT_ID_TOTAL do
-		local ID = UNIT_ID_ALL[i]
-
-		if ( GUID == UnitGUID(ID) ) then
-			UnitID = ID
-			break
-		end
-	end
-
-	return UnitID
+function UnitPhaseReason(Unit)
+	-- return 0 -- Phasing -- If in instance?
 end
 
-function UnitPhaseReason(unit)
-
-end
-
-function UnitDistanceSquared(unit)
-	if ( UnitIsConnected(unit) ) then
-		local px, py = GetPlayerMapPosition("player")
-		local ux, uy = GetPlayerMapPosition(unit)
-		return CalculateDistance(px, py, ux, uy) * 100000, true
+function UnitDistanceSquared(Unit)
+	if ( UnitIsConnected(Unit) ) then
+		local PX, PY = GetPlayerMapPosition("player")
+		local UX, UY = GetPlayerMapPosition(Unit)
+		return CalculateDistance(PX, PY, UX, UY) * 100000, true
 	end
 	return 0, false
 end
 
-function UnitIsTapDenied(unit)
-	return UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) and not UnitIsTappedByAllThreatList(unit)
+function UnitIsTapDenied(Unit)
+	return UnitIsTapped(Unit) and not UnitIsTappedByPlayer(Unit) and not UnitIsTappedByAllThreatList(Unit)
 end
 
-function UnitShouldDisplayName(unitToken)
-	return unitToken
+function UnitShouldDisplayName(Unit)
+	return Unit
 end
 
-function UnitNameplateShowsWidgetsOnly(unitToken)
+function UnitNameplateShowsWidgetsOnly(Unit)
 	return false
 end
 
 function C_UnitCastingInfo(Unit)
-	local name, rank, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId = UnitCastingInfo(Unit)
-
-	return name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellId
+	local Name, Rank, Text, Texture, StartTime, EndTime, IsTradeskill, Cast, Interruptable, SpellID = UnitCastingInfo(Unit)
+	return Name, Text, Texture, StartTime, EndTime, IsTradeskill, Cast, Interruptable, SpellID
 end
 
 function C_UnitChannelInfo(Unit)
-	local name, rank, text, texture, startTimeMS, endTimeMS, isTradeSkill, notInterruptible, spellId = UnitChannelInfo(Unit)
-
-	return name, text, texture, startTimeMS, endTimeMS, isTradeSkill, notInterruptible, spellId
+	local Name, Rank, Text, Texture, StartTime, EndTime, IsTradeskill, Interruptable, SpellID = UnitChannelInfo(Unit)
+	return Name, Text, Texture, StartTime, EndTime, IsTradeskill, Interruptable, SpellID
 end
 
-function UnitFullName(unitID)
-	local name, realm = UnitName(unit)
-	local namerealm = realm and realm ~= "" and name .. "-" .. realm or name
-	return namerealm
+function UnitFullName(Unit)
+	local Name, Realm = UnitName(Unit)
+
+	if ( Unit == "player" ) then
+		Realm = GetNormalizedRealmName()
+	end
+
+	return Name, Realm
 end

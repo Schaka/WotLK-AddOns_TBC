@@ -1,17 +1,20 @@
-local __SendAddonMessage = SendAddonMessage
+local _G = _G
+local C_ChatInfo = C_ChatInfo or {}
 
-C_ChatInfo = C_ChatInfo or {}
+local SendAddonMessage = _G.SendAddonMessage
 
-local function TODO() end
-
-function SendAddonMessage(...)
-	local _, _, Type = ...
+local CTL = _G.ChatThrottleLib
+local CTL_SendAddonMessage = CTL.SendAddonMessage
+CTL.version = 50 -- Force ClassicAPI CTL.
+CTL.SendAddonMessage = function(...)
+	local _, _, _, _, Type = ...
 	if ( Type ~= "PARTY" and Type ~= "RAID" and Type ~= "GUILD" and Type ~= "BATTLEGROUND" and Type ~= "WHISPER" ) then
 		return
 	end
-
-	__SendAddonMessage(...)
+	return CTL_SendAddonMessage(...)
 end
+
+local function TODO() end
 
 C_ChatInfo.RegisterAddonMessagePrefix = TODO
 C_ChatInfo.CanPlayerSpeakLanguage = TODO
@@ -47,6 +50,17 @@ C_ChatInfo.ReplaceIconAndGroupExpressions = TODO
 C_ChatInfo.ReportServerLag = TODO
 C_ChatInfo.RequestCanLocalWhisperTarget = TODO
 C_ChatInfo.ResetDefaultZoneChannels = TODO
-C_ChatInfo.SendAddonMessage = SendAddonMessage
+
+function C_ChatInfo.SendAddonMessage(...)
+	local _, _, Type = ...
+	if ( Type ~= "PARTY" and Type ~= "RAID" and Type ~= "GUILD" and Type ~= "BATTLEGROUND" and Type ~= "WHISPER" ) then
+		return
+	end
+	return SendAddonMessage(...)
+end
+
 C_ChatInfo.SwapChatChannelsByChannelIndex = TODO
 C_ChatInfo.UncensorChatLine = TODO
+
+-- Global
+_G.C_ChatInfo = C_ChatInfo

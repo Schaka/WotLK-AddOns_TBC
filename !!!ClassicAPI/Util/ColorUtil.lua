@@ -1,4 +1,15 @@
-if ( ColorMixin or CreateColor ) then return end
+local ColorMixin = ColorMixin
+if ( ColorMixin and not ColorMixin.___CAPI ) then return end
+ColorMixin.___CAPI = nil
+
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS
+local Mixin = Mixin
+
+for _, classColor in pairs(RAID_CLASS_COLORS) do
+	if ( classColor.colorStr ) then break end
+	Mixin(classColor, ColorMixin);
+	classColor.colorStr = classColor:GenerateHexColor();
+end
 
 function ExtractColorValueFromHex(str, index)
 	return tonumber(str:sub(index, index + 1), 16) / 255;
@@ -24,16 +35,6 @@ function AreColorsEqual(left, right)
 	return left == right;
 end
 
-for k, v in pairs(RAID_CLASS_COLORS) do
-	if ( v.colorStr ) then
-		return
-	end
-
-	local colorMixin = CreateColor(v.r, v.g, v.b, 1);
-	colorMixin.colorStr = colorMixin:GenerateHexColor();
-	RAID_CLASS_COLORS[k] = colorMixin;
-end
-
 function GetClassColor(classFilename)
 	local color = RAID_CLASS_COLORS[classFilename];
 	if color then
@@ -50,7 +51,7 @@ end
 function GetClassColoredTextForUnit(unit, text)
 	local classFilename = select(2, UnitClass(unit));
 	local color = GetClassColorObj(classFilename);
-	if(color) then 
+	if (color) then 
 		return color:WrapTextInColorCode(text);
 	end
 end
