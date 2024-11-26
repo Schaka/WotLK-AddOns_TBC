@@ -1,14 +1,11 @@
---[[
-	Nameplates, Shadow (Horde) from Mal'Ganis (US)
-	fix for 4.1 by Sampsom (zhTW)
-	fix for 5.1 by Sampsom (zhTW)
-]]
-
 local Nameplates = select(2, ...)
 local ClassesPerName = {}
 
 local frames = {}
 local SML
+
+local allNameplatesSameOpacity = true
+local useClassIconsForTeam = true
 
 local relevantUnits = {
 	"mouseover",
@@ -17,6 +14,8 @@ local relevantUnits = {
 	"arena1",
 	"arena2",
 	"arena3",
+	"arena4",
+    "arena5",
 	"party1",
 	"party2",
 	"party3",
@@ -27,6 +26,16 @@ local relevantUnits = {
 	"raid3",
 	"raid4",
 	"raid5",
+	"raid6",
+    "raid7",
+    "raid8",
+    "raid9",
+    "raid10",
+    "raid11",
+    "raid12",
+    "raid13",
+    "raid14",
+    "raid15",
 }
 
 local function updateUnits()
@@ -51,19 +60,22 @@ end
 
 local function setupNameplates(frame)
 	local healthbar = frame:GetChildren()
+
 	if healthbar then
 		local threat, hpborder, cbshield, cbborder, cbicon, overlay, name, level, bossicon, raidicon, elite = frame:GetRegions()
 		local health, castbar = frame:GetChildren()
 
 	end
 
-	local icon = frame["ClassIcon"]
-	if not icon then
-		icon = frame:CreateTexture(nil, "OVERLAY")
-		icon:SetPoint('TOP', 0, 32)
-		icon:SetSize(64, 64)
-		frame["ClassIcon"] = icon
-	end
+    if useClassIconsForTeam then
+        local icon = frame["ClassIcon"]
+        if not icon then
+            icon = frame:CreateTexture(nil, "OVERLAY")
+            icon:SetPoint('TOP', 0, 32)
+            icon:SetSize(64, 64)
+            frame["ClassIcon"] = icon
+        end
+    end
 
 end	
 
@@ -79,7 +91,7 @@ local function restoreNameplate(frame)
 			health:Show()
 			overlay:Show()
 			level:Show()
-			bossicon:Show()
+			--bossicon:Show()
 			hpborder:Show()
 			name:Show()
 			icon:Hide()
@@ -123,7 +135,7 @@ local function updateNameplates(frame)
 				health:Hide()
 				overlay:Hide()
 				level:Hide()
-				bossicon:Hide()
+				--bossicon:Hide()
 				hpborder:Hide()
 				name:Hide()
 			end
@@ -143,7 +155,10 @@ end
 
 local function updateNameplateAlpha(frame)
 	-- dirty hack :(
-	frame:SetAlpha(1.0)
+	if (allNameplatesSameOpacity) then
+	    frame:SetAlpha(1.0)
+	end
+
 	updateNameplates(frame)
 end
 
@@ -186,7 +201,8 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 frame:RegisterEvent("UNIT_TARGET")
 frame:RegisterEvent("ARENA_OPPONENT_UPDATE")
-frame:RegisterEvent("GROUP_ROSTER_UPDATE")
+frame:RegisterEvent("RAID_ROSTER_UPDATE")
+frame:RegisterEvent("PARTY_MEMBERS_CHANGED")
 
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -212,12 +228,14 @@ frame:SetScript("OnUpdate", function(self, elapsed)
 end)
 
 frame:SetScript("OnEvent", function(self, event) 
-	if event == "UPDATE_MOUSEOVER_UNIT" or event == "UNIT_TARGET" or event == "ARENA_OPPONENT_UPDATE" or event == "GROUP_ROSTER_UPDATE" then
+	if event == "UPDATE_MOUSEOVER_UNIT" or event == "UNIT_TARGET" or event == "ARENA_OPPONENT_UPDATE" or event == "RAID_ROSTER_UPDATE" or event == "PARTY_MEMBERS_CHANGED" then
 		updateUnits()
 	end
 
 	if event == "ZONE_CHANGED_NEW_AREA" or event == "PLAYER_ENTERING_WORLD" then
 		-- only cache classes and friend status per zone
-		wipe(ClassesPerName)
+		for k, name in pairs(ClassesPerName) do
+            name["IsFriend"] = false
+        end
 	end	
 end)
