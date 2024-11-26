@@ -96,6 +96,7 @@ local function restoreNameplate(frame)
 			name:Show()
 			icon:Hide()
 		end
+
 	end
 end	
 
