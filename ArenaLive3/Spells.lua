@@ -145,12 +145,12 @@ ArenaLive.spellDB = {
 				[30405] = "usefulDebuffs",	-- Unstable Affliction		
 				
 				-- Warrior
-				[871] = "defCD",			-- Shield Wall
-				[1719] = "offCD",			-- Recklessness
-				[7922] = "stun",			-- Charge Stun
+				[871] = "defCD",		-- Shield Wall
+				[1719] = "offCD",		-- Recklessness
+				[7922] = "stun",		-- Charge Stun
 				[5246] = "crowdControl",	-- Intimidating Shout
-				[676] = "disarm",			-- Disarm
-				[18499] = "disarm",			-- Berserker Rage
+				[676] = "usefulDebuff",		-- Disarm
+				[18499] = "usefulBuffs",	-- Berserker Rage
 				[23920] = "usefulBuffs",	-- Spell Reflection
 				[12292] = "usefulBuffs", 	-- Death Wish
 				[3411] = "usefulBuffs", 	-- Intervene
