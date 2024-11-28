@@ -810,7 +810,7 @@ ArenaLiveUnitFrames.defaults = {
 				["silence"] = 6,
 				["crowdControl"] = 5,
 				["root"] = 4,
-				--["disarm"] = 4, Disarms were removed in WoD.
+				["disarm"] = 4,
 				["usefulBuffs"] = 2,
 				["usefulDebuffs"] = 1,
 			},
