@@ -201,7 +201,7 @@ function Cooldown:UpdateTextSize(cooldown)
 		end
 		
 		local filename, _, flags = cooldown.text:GetFont();
-		--cooldown.text:SetFont("Fonts\\FRIZQT__.TTF", size);	
+        cooldown.text:SetFont(filename, size, flags);
 	end
 
 end
