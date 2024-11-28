@@ -151,7 +151,7 @@ optionFrames = {
 		["xOffset"] = 0,
 		["yOffset"] = -35,
 	},
-	--[[["CCDisarms"] = {
+	["CCDisarms"] = {
 		["name"] = prefix.."CCDisarms",
 		["parent"] = prefix,
 		["point"] = "TOPLEFT",
@@ -159,7 +159,7 @@ optionFrames = {
 		["relativePoint"] = "BOTTOMLEFT",
 		["xOffset"] = 0,
 		["yOffset"] = -35,
-	},]]
+	},
 	["CCOffCDs"] = {
 		["name"] = prefix.."CCOffCDs",
 		["parent"] = prefix,

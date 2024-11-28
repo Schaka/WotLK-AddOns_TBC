@@ -804,13 +804,13 @@ ArenaLiveUnitFrames.defaults = {
 		},
 		["CCIndicator"] =	{
 			["Priorities"] = {
-				["defCD"] = 8,
-				["offCD"] = 3,
-				["stun"] = 7,
-				["silence"] = 6,
-				["crowdControl"] = 5,
-				["root"] = 4,
+				["defCD"] = 9,
+				["stun"] = 8,
+				["silence"] = 7,
+				["crowdControl"] = 6,
+				["root"] = 5,
 				["disarm"] = 4,
+				["offCD"] = 3,
 				["usefulBuffs"] = 2,
 				["usefulDebuffs"] = 1,
 			},
@@ -1139,21 +1139,6 @@ function ArenaLiveUnitFrames:UpdateDB()
 	
 	if ( database.Version == "3.0.0b" ) then
 		
-		-- Remove disarm value from database:
-		database.CCIndicator.Priorities.disarm = nil;
-		
-		-- In WoD Diminishin Return groups were reduced to 5,
-		-- Update all db entries that have a higher value than that.
-		for frameGroup, frameGroupOptions in pairs(database) do
-			if ( type(frameGroupOptions) == "table" ) then
-				if ( type(frameGroupOptions.DRTracker) == "table" ) then
-					if ( frameGroupOptions.DRTracker.MaxShownIcons > 5 ) then
-						database[frameGroup].DRTracker.MaxShownIcons = 5;
-					end
-				end
-			end
-		end
-		
 		database.Version = "3.0.1b";
 	end
 	
@@ -1163,6 +1148,28 @@ function ArenaLiveUnitFrames:UpdateDB()
 	end
 	
 	if ( database.Version ~= "3.2.0b" ) then
-		database.Version = "3.2.0b";
-	end
+        database.Version = "3.2.0b";
+
+        if not database.CCIndicator.Priorities.disarm then
+            database.CCIndicator.Priorities.disarm = 4;
+        end
+    end
+
+    if ( database.Version ~= "3.2.0c" ) then
+        database.Version = "3.2.0c";
+
+        if not database.CCIndicator.Priorities.disarm then
+            database.CCIndicator.Priorities = {
+                ["defCD"] = 9,
+                ["stun"] = 8,
+                ["silence"] = 7,
+                ["crowdControl"] = 6,
+                ["root"] = 5,
+                ["disarm"] = 4,
+                ["offCD"] = 3,
+                ["usefulBuffs"] = 2,
+                ["usefulDebuffs"] = 1,
+            }
+        end
+    end
 end
