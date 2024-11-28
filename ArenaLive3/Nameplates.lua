@@ -56,16 +56,18 @@ local function setupNameplate(frame)
 
             local cooldown = CreateFrame("Cooldown", nil, indicator)
             cooldown:SetAllPoints(indicator)
+            cooldown:SetFrameStrata("BACKGROUND")
+            cooldown:Hide() -- cooldown frames on nameplates bug on update
 
             local text = indicator:CreateFontString(nil, "OVERLAY", "ArenaLiveFont_CooldownText")
-            text:SetAllPoints(cooldown)
+            text:SetAllPoints(indicator)
             cooldown.text = text
 
             local icon = indicator:CreateTexture(nil, "OVERLAY")
             icon:SetSize(48, 48)
-            icon:SetAllPoints(cooldown)
-            
-    
+            icon:SetAllPoints(indicator)
+
+
             ArenaLive:ConstructHandlerObject (indicator, "CCIndicator", icon, cooldown, "ArenaLiveUnitFrames3")
 
             frame.CCIndicator = indicator
