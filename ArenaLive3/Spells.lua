@@ -55,26 +55,26 @@ ArenaLive.spellDB = {
 			["CCIndicator"] = { -- This table is used to track those spells, that are shown on the Class Portrait's position.
 				-- The order is [spellID] = Priority-Type.
 				-- racials
-				[7744] = "defCD",			-- Will of the Forsaken
+				[7744] = "defCD",		-- Will of the Forsaken
 							
 				-- Druid
-				[33786] = "defCD",			-- Cyclone (Made that one a def CD, because the enemy is immune to everything during cyclone)
-				[102795] = "stun",			-- Bear Hug
-				[22570] = "stun",			-- Maim
-				[8983] = "stun",			-- Bash
-				[27006] = "stun",			-- Pounce (stun)
+				[33786] = "defCD",		-- Cyclone (Made that one a def CD, because the enemy is immune to everything during cyclone)
+				[102795] = "stun",		-- Bear Hug
+				[22570] = "stun",		-- Maim
+				[8983] = "stun",		-- Bash
+				[27006] = "stun",		-- Pounce (stun)
 				[18658] = "crowdControl",	-- Hibernate R3
-				[339] = "root",				-- Entangling roots
-				[9853] = "root",			-- Entangling roots max rank
-				[45334] = "root",			-- Feral Charge (root)
-				[16689] = "defCD", 			-- Nature's Grasp
+				[339] = "root",			-- Entangling roots
+				[9853] = "root",		-- Entangling roots max rank
+				[45334] = "root",		-- Feral Charge (root)
+				[16689] = "defCD", 		-- Nature's Grasp
 				[29166] = "usefulBuffs", 	-- Innervate
 
 				-- Hunter
-				[5384] = "defCD",			-- Feign Death
-				[19263] = "defCD",			-- Deterrence
-				[19577] = "stun",			-- Intimidation (stun)			
-				[90337] = "stun",			-- Bad Manner (Monkey Pet)
+				[5384] = "defCD",		-- Feign Death
+				[19263] = "defCD",		-- Deterrence
+				[19577] = "stun",		-- Intimidation (stun)			
+				[90337] = "stun",		-- Bad Manner (Monkey Pet)
 				[34490] = "silence",		-- Silencing Shot
 				[3355] = "crowdControl",	-- Freezing Trap R1
 				[14309] = "crowdControl",	-- Freezing Trap R3
@@ -82,62 +82,62 @@ ArenaLive.spellDB = {
 				[19386] = "crowdControl",	-- Wyvern Sting
 				[1513] = "crowdControl",	-- Scare Beast R1
 				[14327] = "crowdControl",	-- Scare Beast R3
-				[19185] = "root",			-- Entrapment (trap-roots)
+				[19185] = "root",		-- Entrapment (trap-roots)
 				[34692] = "usefulBuffs",	-- The Beast Within (Hunter)
 				
 				-- Mage
-				[45438] = "defCD",			-- Ice Block
-				[12472] = "offCD",			-- Icy Veins
+				[45438] = "defCD",		-- Ice Block
+				[12472] = "offCD",		-- Icy Veins
 				[18469] = "silence",		-- Counterspell silence
 				[118] = "crowdControl",		-- Standard Polymorph R1
 				[28272] = "crowdControl",	-- Polymorph Pig
 				[28271] = "crowdControl",	-- Polymorph Turtle
 				[33043] = "crowdControl",	-- Dragon's Breath
-				[122] = "root",				-- Frost Nova R1
-				[33395] = "root",			-- Freeze (Pet Nova)
+				[122] = "root",			-- Frost Nova R1
+				[33395] = "root",		-- Freeze (Pet Nova)
 
 
 				-- Paladin
-				[1020] = "defCD",			-- Divine Shield
-				[31884] = "offCD",			-- Avenging Wrath
-				[10308] = "stun",			-- Hammer of Justice
-				[119072] = "stun",			-- Holy Wrath
+				[1020] = "defCD",		-- Divine Shield
+				[31884] = "offCD",		-- Avenging Wrath
+				[10308] = "stun",		-- Hammer of Justice
+				[119072] = "stun",		-- Holy Wrath
 				[31935] = "silence",		-- Avenger's Shield
 				[10326] = "crowdControl",	-- Turn Evil
 				[20066] = "crowdControl",	-- Repentance
-				[10278] = "defCD", 			-- Blessing of Protection
+				[10278] = "defCD", 		-- Blessing of Protection
 				[1044] = "usefulBuffs", 	-- Blessing of Freedom
 				[6940] = "usefulBuffs", 	-- Blessing of Sacrifice
 				
 				-- Priest
-				[33206] = "defCD",			-- Pain Suppression
-				[10060] = "offCD",			-- Power Infusion
+				[33206] = "defCD",		-- Pain Suppression
+				[10060] = "offCD",		-- Power Infusion
 				[15487] = "silence",		-- Silence
 				[8122] = "crowdControl",	-- Psychic Scream
 				[10912] = "crowdControl",	-- Mind Control
 				[6346] = "usefulBuffs",		-- Fear Ward
 				
 				-- Rogue	
-				[45182] = "defCD",			-- Cheating Death
-				[26669] = "defCD",			-- Evasion
-				[31224] = "defCD",			-- Cloak of Shadows
-				[8643] = "stun", 			-- Kidney Shot
-				[1833] = "stun",			-- Cheap Shot
-				[1330] = "silence",			-- Garrote - Silence
+				[45182] = "defCD",		-- Cheating Death
+				[26669] = "defCD",		-- Evasion
+				[31224] = "defCD",		-- Cloak of Shadows
+				[8643] = "stun", 		-- Kidney Shot
+				[1833] = "stun",		-- Cheap Shot
+				[1330] = "silence",		-- Garrote - Silence
 				[2094] = "crowdControl", 	-- Blind
 				[1776] = "crowdControl", 	-- Gouge
 				[11297] = "crowdControl", 	-- Sap
 				
 				-- Shaman
-				[16166] = "offCD",			-- Elemental Mastery
+				[16166] = "offCD",		-- Elemental Mastery
 				[32182] = "usefulBuffs", 	-- Heroism
 				[2825] = "usefulBuffs", 	-- Bloodlust
-				[8178] = "defCD",			-- Grounding Totem
+				[8178] = "defCD",		-- Grounding Totem
 				
 				-- Warlock
-				[710] = "defCD",			-- Banish (It is marked as def CD for the same reason as Cyclone)
-				[27223] = "stun",			-- Mortal Coil
-				[30414] = "stun",			-- Shadowfury
+				[710] = "defCD",		-- Banish (It is marked as def CD for the same reason as Cyclone)
+				[27223] = "stun",		-- Mortal Coil
+				[30414] = "stun",		-- Shadowfury
 				[19647] = "silence",		-- Spell lock (Pet-silence)
 				[17928] = "crowdControl",	-- Howl of Terror
 				[5782] = "crowdControl",	-- Fear
@@ -149,14 +149,13 @@ ArenaLive.spellDB = {
 				[1719] = "offCD",		-- Recklessness
 				[7922] = "stun",		-- Charge Stun
 				[5246] = "crowdControl",	-- Intimidating Shout
-				[676] = "usefulDebuff",		-- Disarm
+				[676] = "disarm",		-- Disarm
 				[18499] = "usefulBuffs",	-- Berserker Rage
 				[23920] = "usefulBuffs",	-- Spell Reflection
 				[12292] = "usefulBuffs", 	-- Death Wish
 				[3411] = "usefulBuffs", 	-- Intervene
 				[25274] = "crowdControl", 	-- Intercept Stun
 				[5530] = "crowdControl", 	-- Mace Stun Effect
-				[12292] = "usefulBuffs", 	-- Death Wish
 				
 				-- Racials
 				[20549] = "crowdControl", 	-- War Stomp
@@ -182,13 +181,13 @@ ArenaLive.spellDB = {
 					[642] = 300,		-- Divine Shield
 				},
 				["PRIEST"] = {
-					[33206] = 120,			-- Pain Suppression (with Setbonus)
+					[33206] = 120,		-- Pain Suppression (with Setbonus)
 				},
 				["ROGUE"] = {
-					[5277] = 120,			-- Evasion
+					[5277] = 120,		-- Evasion
 				},
 				["SHAMAN"] = {
-					[30823] = 60,			-- Shamanistic Rage
+					[30823] = 60,		-- Shamanistic Rage
 				},
 				["WARRIOR"] = {
 				},
@@ -201,13 +200,13 @@ ArenaLive.spellDB = {
 		},
 		["Interrupts"] = {
 			-- TO DO: SPEC SPECIFIC SPELLS
-			["DRUID"] = { 8983, 60, false }, 			-- Nature's Cure
-			["HUNTER"] = { 34490, 20, false }, 			-- Silencing Shot
-			["MAGE"] = { 2139, 24, false }, 			-- Counter Spell
+			["DRUID"] = { 8983, 60, false }, 		-- Nature's Cure
+			["HUNTER"] = { 34490, 20, false }, 		-- Silencing Shot
+			["MAGE"] = { 2139, 24, false }, 		-- Counter Spell
 			["PALADIN"] = { 10308, 45, false }, 		-- Cleanse
-			["PRIEST"] = { 10890, 27, false }, 			-- Purify
-			["ROGUE"] = { 38768, 10, false }, 			-- Kick
-			["WARRIOR"] = { 6554, 10, false },			-- Pummel
+			["PRIEST"] = { 10890, 27, false }, 		-- Purify
+			["ROGUE"] = { 38768, 10, false }, 		-- Kick
+			["WARRIOR"] = { 6554, 10, false },		-- Pummel
 			["SHAMAN"] = { 8042, 6, false },
 			["WARLOCK"] = { 19647, 24, false },	
 		},
