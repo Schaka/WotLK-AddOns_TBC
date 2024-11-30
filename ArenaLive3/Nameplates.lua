@@ -55,9 +55,24 @@ local function setupNameplate(frame)
             indicator.enabled = true
 
             local cooldown = CreateFrame("Cooldown", nil, indicator)
-            cooldown:SetAllPoints(indicator)
-            cooldown:SetFrameStrata("BACKGROUND")
-            cooldown:Hide() -- cooldown frames on nameplates bug on update
+            cooldown.SetHideCountdownNumbers = function() end
+            cooldown.SetSwipeColor = function() end
+            cooldown.SetCooldown = function(self, startTime, duration)
+                local remaining = duration - (GetTime() - startTime);
+                self.remaining = remaining;
+                self.elapsed = 0;
+                if not self:IsShown() then
+                    self:Show()
+                end
+            end
+            cooldown.Set = function(self, startTime, duration)
+                local remaining = duration - (GetTime() - startTime);
+                self.remaining = remaining;
+                self.elapsed = 0;
+                if not self:IsShown() then
+                    self:Show()
+                end
+            end
 
             local text = indicator:CreateFontString(nil, "OVERLAY", "ArenaLiveFont_CooldownText")
             text:SetAllPoints(indicator)
@@ -66,7 +81,6 @@ local function setupNameplate(frame)
             local icon = indicator:CreateTexture(nil, "OVERLAY")
             icon:SetSize(48, 48)
             icon:SetAllPoints(indicator)
-
 
             ArenaLive:ConstructHandlerObject (indicator, "CCIndicator", icon, cooldown, "ArenaLiveUnitFrames3")
 
@@ -100,8 +114,8 @@ local function updateNameplate(frame)
                 frame.unit = unit
     
                 -- FIXME: updating every 0.1 is not very performant, but otherwise appear and re-appearing nameplates won't show correct info
-                CCIndicator:UpdateCache("UNIT_AURA", unit)
-                --CCIndicator:Update(frame);
+                CCIndicator:UpdateCache("UNIT_AURA", unit, true)
+                CCIndicator:Update(frame);
                 return
             end
         end
@@ -161,7 +175,6 @@ function Nameplate:UNIT_AURA(event, unit)
 
                     local CCIndicator = ArenaLive:GetHandler("CCIndicator")
                     CCIndicator:UpdateCache("UNIT_AURA", unit)
-                    CCIndicator:Update(frame);
                 end    
             end   
 

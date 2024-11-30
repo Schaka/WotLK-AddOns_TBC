@@ -151,7 +151,7 @@ function CCIndicator:Reset(unitFrame)
 	indicator:Hide();
 end
 
-function CCIndicator:UpdateCache (event, unit)
+function CCIndicator:UpdateCache (event, unit, denyUpdate)
 	
 	if ( event == "PLAYER_TARGET_CHANGED" ) then
 		unit = "target";
@@ -240,7 +240,7 @@ function CCIndicator:UpdateCache (event, unit)
 	end
 	
 	-- Inform all affected cc indicators that something has changed:
-	if ( ArenaLive:IsUnitInUnitFrameCache(unit) ) then
+	if ( not denyUpdate and ArenaLive:IsUnitInUnitFrameCache(unit) ) then
 		for id in ArenaLive:GetAffectedUnitFramesByUnit(unit) do
 			local unitFrame = ArenaLive:GetUnitFrameByID(id);
 			if ( unitFrame[self.name] ) then
