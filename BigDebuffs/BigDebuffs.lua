@@ -1858,9 +1858,9 @@ function formatCooldownText(cooldownTime)
 	end
 	
 	if ( timeType == "hours" ) then
-		cooldownTimeText = cooldownTime..L["HOUR_ABBR"];
+		cooldownTimeText = cooldownTime.."h";
 	elseif ( timeType == "minutes" ) then 
-		cooldownTimeText = cooldownTime..L["MINUTE_ABBR"];
+		cooldownTimeText = cooldownTime.."m";
 	else
 		if ( tonumber(cooldownTime) <= 0 ) then
 			cooldownTimeText = "";
