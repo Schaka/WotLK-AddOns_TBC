@@ -101,7 +101,7 @@ local function updateNameplate(frame)
     
                 -- FIXME: updating every 0.1 is not very performant, but otherwise appear and re-appearing nameplates won't show correct info
                 CCIndicator:UpdateCache("UNIT_AURA", unit)
-                CCIndicator:Update(frame);
+                --CCIndicator:Update(frame);
                 return
             end
         end
