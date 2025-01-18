@@ -1,0 +1,7 @@
+## Interface: 30300
+## Title: ArenaLive3 [NamePlates]
+## Notes: A leightweight name plate addon, mainly used for ArenaLive.
+## Dependencies: ArenaLive3
+## SavedVariables: ALNP_Database
+
+ArenaLiveNamePlates.xml

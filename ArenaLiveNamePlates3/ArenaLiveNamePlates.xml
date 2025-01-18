@@ -1,0 +1,170 @@
+<!--
+    ArenaLive [Spectator] is an user interface for spectated arena 
+	wargames in World of Warcraft.
+    Copyright (C) 2015  Harald Böhm <harald@boehm.agency>
+	Further contributors: Jochen Taeschner and Romina Schmidt.
+	
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	
+	ADDITIONAL PERMISSION UNDER GNU GPL VERSION 3 SECTION 7:
+	As a special exception, the copyright holder of this add-on gives you
+	permission to link this add-on with independent proprietary software,
+	regardless of the license terms of the independent proprietary software.
+-->
+
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Script File="ArenaLiveNameplates.lua" />
+
+	<Frame name="ArenaLiveSpectatorNamePlateCCIndicatorTemplate" virtual="true">
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture name="$parentTexture" />
+			</Layer>
+		</Layers>
+	</Frame>	
+
+	
+	<Frame name="ArenaLiveSpectatorNamePlateTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="188" y="52" />
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER">
+				<Offset>
+					<AbsDimension x="0" y="-32" />
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentClassIcon" file="Interface\Glues\CharacterCreate\UI-CharacterCreate-Classes" parentKey="classIcon">
+					<Size>
+						<AbsDimension x="32" y="32" />
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="22" y="-7" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame setAllPoints="true">
+				<Frames>
+					<Frame setAllPoints="true">
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture name="$parentBorder" file="Interface\AddOns\ArenaLiveNamePlates3\Textures\PlayerNamePlateBig">
+									<!-- <TexCoords left="0.181640625" right="0.818359375" top="0.2421875" bottom="0.7578125"/> -->
+								</Texture>
+							</Layer>
+							<Layer level="OVERLAY">
+								<FontString name="$parentNameText" inherits="ArenaLiveFont_Name">
+									<Anchors>
+										<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
+											<Offset>
+												<AbsDimension x="24" y="0" />
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+								<Texture name="$parentHealerIcon" file="Interface\AddOns\ArenaLiveNamePlates3\Textures\NamePlateHealerIcon">
+									<Size>
+										<AbsDimension x="14" y="14" />
+									</Size>
+									<Anchors>
+										<Anchor point="LEFT" relativeTo="$parentNameText" relativePoint="RIGHT" />
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
+			</Frame>
+			<Frame name="$parentCCIndicator" inherits="ArenaLiveSpectatorNamePlateCCIndicatorTemplate">
+				<Size>
+					<AbsDimension x="32" y="32" />
+				</Size>
+				<Anchors>
+					<Anchor point="CENTER" relativeTo="$parentClassIcon" />
+				</Anchors>
+			</Frame>
+			<StatusBar name="$parentHealthBar" parentKey="HealthBar">
+				<Size>
+					<AbsDimension x="120" y="12" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentClassIcon" relativePoint="TOPRIGHT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture>
+							<Color r="0" g="0" b="0" a="0.5" />
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture name="$parentAbsorbBar" inherits="ArenaLive_AbsorbBarTemplate" />
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="1">
+						<Texture name="$parentHealPredictionBar" inherits="ArenaLive_HealPredictionBar" />
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="2">
+						<Texture name="$parentAbsorbBarOverlay" inherits="ArenaLive_AbsorbBarOverlayTemplate" />
+						<Texture name="$parentAbsorbBarFullHPIndicator" inherits="ArenaLive_AbsorbFullHPIndicator" />					
+					</Layer>
+					<Layer level="OVERLAY" textureSubLevel="3">
+						<FontString name="$parentText" inherits="ArenaLiveFont_StatusBarTextSmall" setAllPoints="true" />
+					</Layer>
+				</Layers>
+				<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+				<BarColor r="0" g="1.0" b="0"/>
+			</StatusBar>
+			<StatusBar name="$parentCastBar" parentKey="castBar">
+				<Size>
+					<AbsDimension x="115" y="15" />
+				</Size>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="30" y="4" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture>
+							<Color r="0" g="0" b="0" a="0.5"/>
+						</Texture>		
+					</Layer>
+					<Layer level="ARTWORK">
+						<FontString name="$parentText" setAllPoints="true" inherits="ArenaLiveFont_StatusBarTextSmall" parentKey="text" />
+						<Texture name="$parentIcon" file="Interface\Icons\INV_Misc_QuestionMark" parentKey="icon">
+							<Size>
+								<AbsDimension x="18" y="18"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT" />
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<BarTexture file="Interface\TargetingFrame\UI-StatusBar"/>
+				<BarColor r="1.0" g="0.7" b="0.0"/>
+			</StatusBar>
+		</Frames>
+	</Frame>
+</Ui>

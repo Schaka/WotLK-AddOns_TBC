@@ -1,6 +1,7 @@
 local addonName, L = ...;
 
 local frames = {}
+
 local Nameplate = ArenaLive:ConstructHandler("Nameplate", true, true);
 Nameplate:RegisterEvent("UNIT_AURA", "UNIT_AURA");
 Nameplate:RegisterEvent("PLAYER_TARGET_CHANGED", "UNIT_AURA");
@@ -129,6 +130,11 @@ local function updateNameplate(frame)
 end
 
 Nameplate:SetScript("OnUpdate", function(self, elapsed)
+
+    if IsAddOnLoaded("ArenaLiveNamePlates3") then
+        return
+    end    
+
 	lastupdate = lastupdate + elapsed
 
 	if lastupdate > 0.1 then
@@ -153,6 +159,10 @@ Nameplate:SetScript("OnUpdate", function(self, elapsed)
 end)
 
 function Nameplate:UNIT_AURA(event, unit)
+
+    if IsAddOnLoaded("ArenaLiveNamePlates3") then
+        return
+    end
 
     if event == "PLAYER_TARGET_CHANGED" then
         event = "UNIT_AURA"
