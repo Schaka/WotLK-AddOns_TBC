@@ -24,7 +24,8 @@
 ]]
 
 -- Addon Name and localisation table:
-local FORCED_ALPHA = true 
+local FORCED_ALPHA = true
+local NAMEPLATE_SIZE = 1.0
 
 local addonName, L = ...;
 
@@ -592,6 +593,7 @@ function NamePlateClass:UpdateAppearance()
 	if ( isInPvP and isPlayer ) then
 
 		self:SetSize(188, 52);
+		self:SetScale(NAMEPLATE_SIZE);
 		
 		self.classIcon:Show();
 		
